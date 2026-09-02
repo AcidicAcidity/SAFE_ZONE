@@ -1,1 +1,8 @@
 config.json
+target/*
+*.jar
+*.war
+*.ear
+.project
+.settings/
+.classpath
