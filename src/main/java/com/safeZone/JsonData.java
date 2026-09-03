@@ -6,6 +6,8 @@ public class JsonData {
     private String host;
     private int port;
     private String database;
+    private String password;
+    private String user;
 
     // Пустой конструктор для Jackson
     public JsonData(){
@@ -34,5 +36,21 @@ public class JsonData {
 
     public void setDataBase(String database) {
         this.database = database;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }

@@ -31,9 +31,19 @@ public class App {
             JsonData data = reader.readDataFromJson("config.json");
             System.out.println("Host: " + data.getHost());
             System.out.println("Port: " + data.getPort());
+            System.out.println("User: " + data.getUser());
             System.out.println("Database: " + data.getDataBase());
+            System.out.println("Password: " + data.getPassword());
         } catch (IOException e) {
             System.err.println("Ошибка чтения JSON: " + e.getMessage());
+        }
+
+        try {
+            JsonData data = reader.readDataFromJson("config.json");
+            String port = String.valueOf(data.getPort());
+            DBHelper.SqlExecRequest(data.getHost() + ":" + port, data.getUser(), data.getPassword(), "");
+        } catch (Exception e) {
+            log.error("ERROR EXECUTING SQL REQUEST: ", e);
         }
     }
 }
