@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
-import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
-import com.googlecode.lanterna.gui2.table.Table;
+import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 
@@ -54,15 +53,6 @@ public class App {
             log.error("ERROR READ CONFIG FILE");
         }
 
-        // // Создание экрана для вывода интерфейса.
-        // Screen screen = new DefaultTerminalFactory().createScreen();
-        // screen.startScreen();
 
-        // Panel menuPanel = new Panel(new LinearLayout(Direction.HORIZONTAL));
-        // menuPanel.addComponent(new Button("Аренда ячейки", () -> {}));
-        // menuPanel.addComponent(new Button("Войти как администратор", () -> {}));
-        // menuPanel.addComponent(new Button("Выход", () -> {}));
-
-        // Table<String> binsTable = new Table<>();
     }
 }
