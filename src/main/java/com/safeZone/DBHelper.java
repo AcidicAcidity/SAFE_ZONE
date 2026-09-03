@@ -54,4 +54,16 @@ public class DBHelper {
         return rows;
     }
 
+    public static int executeUpdateData(String sql, Object... params) throws SQLException {
+        try (Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                ps.setObject(i + 1, params[i]);
+            }
+
+            return ps.executeUpdate();
+        }
+    }
+
 }
