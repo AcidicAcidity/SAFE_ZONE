@@ -7,10 +7,6 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.safeZone.util.DBHelper;
 
-<<<<<<< HEAD
-// import java.awt.Label;
-=======
->>>>>>> 63562af4654e91530be21eeea8923dc95c10be5a
 import java.util.*;
 
 import com.googlecode.lanterna.gui2.table.Table;
@@ -20,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 
 public class TermMenus {
 
@@ -162,7 +158,7 @@ public class TermMenus {
         TextBox sortResultBox = new TextBox(new TerminalSize(30, 2));
         sortResultBox.setText("DESC/ASC");
         //это вот таблица для результатов
-        Table<String> resultTable = new Table<>("ID","Price","Pos_x","Pos_y","Size","Status");
+        Table<String> resultTable = new Table<>("ID","Price","Position","Status");
         resultTable.setVisible(false);
 
         //Крч тут я сделал валидацию    
@@ -231,12 +227,12 @@ public class TermMenus {
             }
 
             // заполняем нашу табличку
-            resultTable.clear();
+            resultTable.getTableModel().clear();
             if (rows != null && !rows.isEmpty()){
                 for (Map<String, Object> row : rows) {
                     String id = String.valueOf(row.get("id"));
                     String price = String.valueOf(row.get("price"));
-                    String position = String.valueOf(row.get("pos_x")) + String.valueOf(row.get("pos_y"));
+                    String position = String.valueOf(row.get("pos_x")) + " " + String.valueOf(row.get("pos_y"));
                     String size = String.valueOf(row.get("size"));
                     String status = String.valueOf(row.get("status"));
                     resultTable.addRow(id, price, position, size, status);
