@@ -5,17 +5,26 @@ import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.safeZone.util.DBHelper;
 
-import java.awt.Label;
+<<<<<<< HEAD
+// import java.awt.Label;
+=======
+>>>>>>> 63562af4654e91530be21eeea8923dc95c10be5a
 import java.util.*;
 
-import com.googlecode.lanterna.gui2.Table;
+import com.googlecode.lanterna.gui2.table.Table;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.LoggerFactory;
+
 public class TermMenus {
+
+    private static final Logger log = LoggerFactory.getLogger(TermMenus.class);
 
     private static WindowBasedTextGUI gui;
 
@@ -154,7 +163,7 @@ public class TermMenus {
         sortResultBox.setText("DESC/ASC");
         //это вот таблица для результатов
         Table<String> resultTable = new Table<>("ID","Price","Pos_x","Pos_y","Size","Status");
-        resultTable.setVisible(False);
+        resultTable.setVisible(false);
 
         //Крч тут я сделал валидацию    
 
@@ -209,7 +218,7 @@ public class TermMenus {
              if ("ASC".equals(sortValue)|| "DESC".equals(sortValue)){
                 sql.append(" ORDER BY id ").append(sortValue);
              }else{
-                sql.append(" ORDER BY id ASC")
+                sql.append(" ORDER BY id ASC");
              }
             
             //через DBHelper запрос делаем
@@ -217,21 +226,20 @@ public class TermMenus {
             try{
                 rows = DBHelper.getDataFromDB(sql.toString(),params.toArray());
             }catch (SQLException e){
-                e.printStackTrace();
+                log.info("NULL RESPONSE DB: " + e);
                 return;
             }
 
             // заполняем нашу табличку
             resultTable.clear();
             if (rows != null && !rows.isEmpty()){
-                for (Map<String>, Object> row : rows){
+                for (Map<String, Object> row : rows) {
                     String id = String.valueOf(row.get("id"));
                     String price = String.valueOf(row.get("price"));
-                    String pos_x = String.valueOf(row.get("pos_x"));
-                    String pos_y = String.valueOf(row.get("pos_y"));
+                    String position = String.valueOf(row.get("pos_x")) + String.valueOf(row.get("pos_y"));
                     String size = String.valueOf(row.get("size"));
                     String status = String.valueOf(row.get("status"));
-                    resultTable.addRow(id,price,pos_x,pos_y,size,status);
+                    resultTable.addRow(id, price, position, size, status);
                 }
                 resultTable.setVisible(true);
             }else{

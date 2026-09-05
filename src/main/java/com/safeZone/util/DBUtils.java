@@ -1,10 +1,14 @@
-package com.safeZone;
+package com.safeZone.util;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.slf4j.*;
+
+import com.safeZone.util.JsonData;
+import com.safeZone.util.JsonReader;
+
 
 public class DBUtils {
     private static String URL;

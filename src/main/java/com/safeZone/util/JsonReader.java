@@ -1,6 +1,9 @@
-package com.safeZone;
+package com.safeZone.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.safeZone.util.JsonData;
+
 import java.io.InputStream;
 import java.io.IOException;
 import org.slf4j.*;
