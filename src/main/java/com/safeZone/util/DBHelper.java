@@ -1,36 +1,38 @@
 package com.safeZone.util;
 
-import java.sql.*;
-import org.slf4j.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DBHelper {
-    // Пока не используется логгер, но не удаляем, возможно нужно будет добавить логирование
-    private static final Logger log = LoggerFactory.getLogger(DBHelper.class);
-    // public static void SqlExecRequest(String jDBUrl, String user, String password, String sqlRequest) throws Exception {
-    //     try (Connection conn = DriverManager.getConnection(jDBUrl, user, password);
-    //             Statement stmt = conn.createStatement()) {
-    //         stmt.executeUpdate(sqlRequest);
-    //         System.out.println("SUCCESS EXECUTE SQL REQUEST: " + sqlRequest);
-    //         log.info("SUCCESS EXECUTE SQL REQUEST: " + sqlRequest);
-    //     } catch (Exception e) {
-    //         log.info("ERROR EXECUTING SQL REQUEST" + e);
-    //     }
-    // }
 
-    public boolean CheckDBConnection() {
-        try (Connection conn = DBUtils.getConnection()) {
+    private static final Logger log = LoggerFactory.getLogger(DBHelper.class);
+
+    private final DBUtils dbUtils;
+
+    public DBHelper(DBUtils dbUtils) {
+        this.dbUtils = dbUtils;
+    }
+
+    public boolean checkDBConnection() {
+        try (Connection conn = dbUtils.getConnection()) {
             return true;
         } catch (SQLException e) {
+            log.error("Ошибка подключения к БД: {}", e.getMessage(), e);
             return false;
         }
     }
 
-    public static List<Map<String, Object>> getDataFromDB(String sql, Object... params) throws SQLException {
+    public List<Map<String, Object>> getDataFromDB(String sql, Object... params) throws SQLException {
         List<Map<String, Object>> rows = new ArrayList<>();
 
-        try (Connection conn = DBUtils.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = dbUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
@@ -43,9 +45,7 @@ public class DBHelper {
                 while (rs.next()) {
                     Map<String, Object> row = new HashMap<>();
                     for (int i = 1; i <= columnCount; i++) {
-                        String columnName = meta.getColumnLabel(i);
-
-                        row.put(columnName, rs.getObject(i));
+                        row.put(meta.getColumnLabel(i), rs.getObject(i));
                     }
                     rows.add(row);
                 }
@@ -54,9 +54,9 @@ public class DBHelper {
         return rows;
     }
 
-    public static int executeUpdateData(String sql, Object... params) throws SQLException {
-        try (Connection conn = DBUtils.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+    public int executeUpdateData(String sql, Object... params) throws SQLException {
+        try (Connection conn = dbUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
@@ -65,5 +65,4 @@ public class DBHelper {
             return ps.executeUpdate();
         }
     }
-
 }
