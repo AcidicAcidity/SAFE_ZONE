@@ -7,16 +7,6 @@ import java.util.*;
 public class DBHelper {
     // Пока не используется логгер, но не удаляем, возможно нужно будет добавить логирование
     private static final Logger log = LoggerFactory.getLogger(DBHelper.class);
-    // public static void SqlExecRequest(String jDBUrl, String user, String password, String sqlRequest) throws Exception {
-    //     try (Connection conn = DriverManager.getConnection(jDBUrl, user, password);
-    //             Statement stmt = conn.createStatement()) {
-    //         stmt.executeUpdate(sqlRequest);
-    //         System.out.println("SUCCESS EXECUTE SQL REQUEST: " + sqlRequest);
-    //         log.info("SUCCESS EXECUTE SQL REQUEST: " + sqlRequest);
-    //     } catch (Exception e) {
-    //         log.info("ERROR EXECUTING SQL REQUEST" + e);
-    //     }
-    // }
 
     public boolean CheckDBConnection() {
         try (Connection conn = DBUtils.getConnection()) {
