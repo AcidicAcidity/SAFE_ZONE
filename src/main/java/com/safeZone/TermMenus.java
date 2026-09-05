@@ -12,6 +12,7 @@ import java.util.*;
 
 public class TermMenus {
 
+    DBHelper dbHelper = new DBHelper();
     private static WindowBasedTextGUI gui;
 
     public static void main() throws Exception {
