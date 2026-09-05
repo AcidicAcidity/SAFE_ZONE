@@ -161,7 +161,7 @@ public class TermMenus {
         Table<String> resultTable = new Table<>("ID","Price","Position","Status");
         resultTable.setVisible(false);
 
-        //Крч тут я сделал валидацию    
+        //Крч тут я сделал валидацию
 
         Button send = new Button("Продолжить", () -> {
             String filterType = filterTypeBox.getText();
@@ -190,7 +190,7 @@ public class TermMenus {
                     errorMsg.append("Фильтр может быть только 'size' или 'status_bins'. ");
                 }
             }
-            // тут мы проверяем сортировку 
+            // тут мы проверяем сортировку
             if (!sortValue.isEmpty() && !"ASC".equals(sortValue) && !"DESC".equals(sortValue)) {
                 valid = false;
                 errorMsg.append("Сортировка только ASC или DESC. ");
@@ -210,13 +210,13 @@ public class TermMenus {
                 sql.append(" AND status_bins = ?");
                 params.add(filterValue);
              }
-             //а вот конкретно тут сортируем уже 
+             //а вот конкретно тут сортируем уже
              if ("ASC".equals(sortValue)|| "DESC".equals(sortValue)){
                 sql.append(" ORDER BY id ").append(sortValue);
              }else{
                 sql.append(" ORDER BY id ASC");
              }
-            
+
             //через DBHelper запрос делаем
             List<Map<String, Object>> rows = null;
             try{
@@ -243,12 +243,6 @@ public class TermMenus {
             }
             findBin.invalidate();
 
-
-            // Исправить валидацию входящих данных в фильтры
-            // if ((fT == true) || (fV == true) || (sV == true)) {
-            //     panel.addComponent(new Label("НЕВЕРНЫЕ ФИЛЬТРЫ. Не используйите числа при фильтрации"));
-            // }
-            // Дописать SQL запрос
         });
         Button exit = new Button("Выход", findBin::close);
         // Отрисовать таблицу и после получения DBResponse заполнить таблицу данными из списка
@@ -273,12 +267,5 @@ public class TermMenus {
 
         Label DisplayLabel = new Label("ПОИСК ПЛАТЕЖЕЙ");
     }
-
-    private static class row {
-
-        public row() {
-        }
-    }
-
 
 }
