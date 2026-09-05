@@ -8,7 +8,6 @@ public class JsonData {
     private String database;
     private String password;
     private String user;
-
     // Пустой конструктор для Jackson
     public JsonData(){
     }
