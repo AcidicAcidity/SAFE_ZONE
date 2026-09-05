@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
-// import com.googlecode.lanterna.gui2.*;
-// import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
-// import com.googlecode.lanterna.screen.Screen;
-// import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.safeZone.util.*;
+import com.safeZone.views.*;
 
 
 public class App {
@@ -48,7 +45,8 @@ public class App {
         try {
             dbUtils = new DBUtils();
         } catch (IOException e) {
-            log.error("ERROr INIT CONNECT DATABASE: {}", e.getMessage(), e);
+            log.error("ERROR INIT CONNECT DATABASE: {}", e.getMessage(), e);
+            return;
         }
 
         DBHelper dbHelper = new DBHelper(dbUtils);

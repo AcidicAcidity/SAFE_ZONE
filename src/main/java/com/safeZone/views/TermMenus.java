@@ -24,7 +24,11 @@ public class TermMenus {
     private final DBHelper dbHelper;
     private static WindowBasedTextGUI gui;
 
-    public static void main() throws Exception {
+    public TermMenus(DBHelper dbHelper){
+        this.dbHelper = dbHelper;
+    }
+
+    public void start() throws Exception {
         Screen screen = new DefaultTerminalFactory().createScreen();
         screen.startScreen();
 
@@ -45,7 +49,7 @@ public class TermMenus {
         return false;
     }
 
-    private static void showMainMenu() {
+    private void showMainMenu() {
         BasicWindow mainWindow = new BasicWindow("Главное меню");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
@@ -85,7 +89,7 @@ public class TermMenus {
         gui.addWindowAndWait(mainWindow);
     }
 
-    private static void showSizeWindow() {
+    private void showSizeWindow() {
         BasicWindow sizeWindow = new BasicWindow("Аренда");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
@@ -117,7 +121,7 @@ public class TermMenus {
         gui.addWindowAndWait(sizeWindow);
     }
 
-    private static void showFilterWindow() {
+    private void showFilterWindow() {
         BasicWindow filterWindow = new BasicWindow("Поиск ячейки или платежа");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
@@ -146,7 +150,7 @@ public class TermMenus {
         gui.addWindowAndWait(filterWindow);
     }
 
-    private static void findBinWindow() {
+    private void findBinWindow() {
         BasicWindow findBin = new BasicWindow("Поиск ячейки");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
         Panel filterPanel = new Panel(new LinearLayout(Direction.HORIZONTAL));
@@ -261,7 +265,7 @@ public class TermMenus {
         gui.addWindowAndWait(findBin);
     }
 
-    private static void findPaymentWindow() {
+    private void findPaymentWindow() {
         BasicWindow findPayment = new BasicWindow("Поиск платежа");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
