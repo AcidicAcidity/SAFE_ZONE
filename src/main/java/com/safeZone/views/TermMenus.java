@@ -21,7 +21,7 @@ import org.slf4j.*;
 public class TermMenus {
 
     private static final Logger log = LoggerFactory.getLogger(TermMenus.class);
-
+    private final DBHelper dbHelper;
     private static WindowBasedTextGUI gui;
 
     public static void main() throws Exception {
@@ -220,7 +220,7 @@ public class TermMenus {
             //через DBHelper запрос делаем
             List<Map<String, Object>> rows = null;
             try{
-                rows = DBHelper.getDataFromDB(sql.toString(),params.toArray());
+                rows = dbHelper.getDataFromDB(sql.toString(),params.toArray());
             }catch (SQLException e){
                 log.info("NULL RESPONSE DB: " + e);
                 return;

@@ -14,8 +14,6 @@ import com.safeZone.util.*;
 
 public class App {
     public static void main(){
-        DBHelper dbhelp = new DBHelper();
-
 
         String timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
             .replace(":", "-")
@@ -46,17 +44,25 @@ public class App {
             System.err.println("Ошибка чтения JSON: " + e.getMessage());
         }
 
+        DBUtils dbUtils;
         try {
-            boolean isActive = dbhelp.CheckDBConnection();
-            if (isActive == true) {
-                log.info("DATABASE SUCCSESSFULLY CONNECTED");
-            } else {
-                log.info("DATABASE CONNECTION FAILED");
-            }
-        } catch (Exception e) {
-            log.info("ERROR READ CONFIG FILE");
+            dbUtils = new DBUtils();
+        } catch (IOException e) {
+            log.error("ERROr INIT CONNECT DATABASE: {}", e.getMessage(), e);
         }
 
+        DBHelper dbHelper = new DBHelper(dbUtils);
 
+        if (dbHelper.checkDBConnection()) {
+            log.info("SUCCES CONNECTION DB");
+        } else {
+            log.error("FAILED CONNECTION DB");
+        }
+
+        try {
+            new TermMenus(dbHelper).start();
+        } catch (Exception e) {
+            log.error("GUI START ERROR: ", e);
+        }
     }
 }

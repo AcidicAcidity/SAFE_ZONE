@@ -4,34 +4,43 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.slf4j.*;
 
-import com.safeZone.util.JsonData;
-import com.safeZone.util.JsonReader;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DBUtils {
-    private static String URL;
-    private static String USER;
-    private static String PASSWORD;
+
     private static final Logger log = LoggerFactory.getLogger(DBUtils.class);
 
+    private final String url;
+    private final String user;
+    private final String password;
 
-    static {
+    public DBUtils() throws IOException {
+        this("config.json");
+    }
+
+    // Отдельный конструктор с именем ресурса
+    public DBUtils(String configResourceName) throws IOException {
         JsonReader reader = new JsonReader();
-        try{
-        JsonData data = reader.readDataFromJson("config.json");
-        URL = "jdbc:postgresql://" + data.getHost() + ":" + data.getPort() + "/safe_zone";
-        USER = data.getUser();
-        PASSWORD = data.getPassword();
-        } catch (IOException e) {
-            log.error("ERROR READ CONFIG: " + e);
+        JsonData data = reader.readDataFromJson(configResourceName);
+
+        if (data.getHost() == null || data.getUser() == null || data.getPassword() == null) {
+            throw new IOException("В конфиге отсутствуют обязательные поля (host/user/password): " + configResourceName);
         }
+
+        this.url = "jdbc:postgresql://" + data.getHost() + ":" + data.getPort() + "/safe_zone";
+        this.user = data.getUser();
+        this.password = data.getPassword();
+
+        log.info("DBUtils инициализирован для {}:{}", data.getHost(), data.getPort());
     }
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
     }
 
-    public static String getUrl() { return URL; }
+    public String getUrl() {
+        return url;
+    }
 }
