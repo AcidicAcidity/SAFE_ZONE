@@ -5,13 +5,17 @@ import java.io.IOException;
 import java.io.File;
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
-import com.googlecode.lanterna.gui2.*;
-import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+// import com.googlecode.lanterna.gui2.*;
+// import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
+// import com.googlecode.lanterna.screen.Screen;
+// import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.safeZone.util.*;
+
 
 public class App {
     public static void main(){
+        DBHelper dbhelp = new DBHelper();
+
 
         String timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
             .replace(":", "-")
@@ -43,14 +47,14 @@ public class App {
         }
 
         try {
-            boolean isActive = DBHelper.CheckDBConnection();
+            boolean isActive = dbhelp.CheckDBConnection();
             if (isActive == true) {
                 log.info("DATABASE SUCCSESSFULLY CONNECTED");
             } else {
-                log.error("DATABASE CONNECTION FAILED");
+                log.info("DATABASE CONNECTION FAILED");
             }
         } catch (Exception e) {
-            log.error("ERROR READ CONFIG FILE");
+            log.info("ERROR READ CONFIG FILE");
         }
 
 

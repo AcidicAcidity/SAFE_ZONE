@@ -5,8 +5,8 @@ import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.safeZone.util.DBHelper;
 
-import java.awt.Label;
 import java.util.*;
 
 

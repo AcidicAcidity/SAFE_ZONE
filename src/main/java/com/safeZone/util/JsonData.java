@@ -1,4 +1,4 @@
-package com.safeZone;
+package com.safeZone.util;
 // Файл описывающий структуру JSON
 //
 // Поля класса обязательно идентичны полям в JSON

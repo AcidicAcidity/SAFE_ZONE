@@ -1,4 +1,4 @@
-package com.safeZone;
+package com.safeZone.util;
 
 import java.sql.*;
 import org.slf4j.*;
@@ -18,7 +18,7 @@ public class DBHelper {
     //     }
     // }
 
-    public static boolean CheckDBConnection() {
+    public boolean CheckDBConnection() {
         try (Connection conn = DBUtils.getConnection()) {
             return true;
         } catch (SQLException e) {
