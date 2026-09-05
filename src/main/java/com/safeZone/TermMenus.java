@@ -9,6 +9,11 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import java.awt.Label;
 import java.util.*;
 
+import com.googlecode.lanterna.gui2.Table;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class TermMenus {
 
@@ -147,20 +152,99 @@ public class TermMenus {
         filterValueBox.setText("enter value");
         TextBox sortResultBox = new TextBox(new TerminalSize(30, 2));
         sortResultBox.setText("DESC/ASC");
+        //это вот таблица для результатов
+        Table<String> resultTable = new Table<>("ID","Price","Pos_x","Pos_y","Size","Status");
+        resultTable.setVisible(False);
+
+        //Крч тут я сделал валидацию    
 
         Button send = new Button("Продолжить", () -> {
             String filterType = filterTypeBox.getText();
             String filterValue = filterValueBox.getText();
             String sortValue = sortResultBox.getText();
-            Boolean fT = containsDigit(filterType);
-            Boolean fV = containsDigit(filterValue);
-            Boolean sV = containsDigit(sortValue);
+
+            boolean valid = true;
+            StringBuilder errorMsg = new StringBuilder();
+
+            if (!filterType.isEmpty() && !filterValue.isEmpty()){
+                if (filterType.equalsIgnoreCase("Size")){
+                    try{
+                        Integer.parseInt(filterValue);
+                    }catch (NumberFormatException e){
+                        valid = false;
+                        errorMsg.append("Для size нужно целое число");
+                    }
+                }else if (filterType.equalsIgnoreCase("status_bins")|| filterType.equalsIgnoreCase("status")){
+                    List<String> allowed = Arrays.asList("available", "rented", "maintenance", "broken");
+                    if (!allowed.contains(filterValue.toLowerCase())){
+                        valid = false;
+                         errorMsg.append("Допустимые статусы: available, rented, maintenance, broken. ");
+                    }
+                }else{
+                    valid = false;
+                    errorMsg.append("Фильтр может быть только 'size' или 'status_bins'. ");
+                }
+            }
+            // тут мы проверяем сортировку 
+            if (!sortValue.isEmpty() && !"ASC".equals(sortValue) && !"DESC".equals(sortValue)) {
+                valid = false;
+                errorMsg.append("Сортировка только ASC или DESC. ");
+            }
+             if (!valid){
+                 System.err.println("ОШИБКА: " + errorMsg.toString());
+                 return;
+             }
+             //Тут начинаем формировать наши скьюл запросики
+             StringBuilder sql = new StringBuilder("SELECT * FROM bins WHERE 1=1");
+             List<Object> params = new ArrayList<>();
+
+             if (filterType.equalsIgnoreCase("size") && !filterValue.isEmpty()) {
+                sql.append(" AND size = ?");
+                params.add(Integer.parseInt(filterValue));
+             } else if ((filterType.equalsIgnoreCase("status_bins") || filterType.equalsIgnoreCase("status")) && !filterValue.isEmpty()){
+                sql.append(" AND status_bins = ?");
+                params.add(filterValue);
+             }
+             //а вот конкретно тут сортируем уже 
+             if ("ASC".equals(sortValue)|| "DESC".equals(sortValue)){
+                sql.append(" ORDER BY id ").append(sortValue);
+             }else{
+                sql.append(" ORDER BY id ASC")
+             }
+            
+            //через DBHelper запрос делаем
+            List<Map<String, Object>> rows = null;
+            try{
+                rows = DBHelper.getDataFromDB(sql.toString(),params.toArray());
+            }catch (SQLException e){
+                e.printStackTrace();
+                return;
+            }
+
+            // заполняем нашу табличку
+            resultTable.clear();
+            if (rows != null && !rows.isEmpty()){
+                for (Map<String>, Object> row : rows){
+                    String id = String.valueOf(row.get("id"));
+                    String price = String.valueOf(row.get("price"));
+                    String pos_x = String.valueOf(row.get("pos_x"));
+                    String pos_y = String.valueOf(row.get("pos_y"));
+                    String size = String.valueOf(row.get("size"));
+                    String status = String.valueOf(row.get("status"));
+                    resultTable.addRow(id,price,pos_x,pos_y,size,status);
+                }
+                resultTable.setVisible(true);
+            }else{
+                resultTable.setVisible(false);
+            }
+            findBin.invalidate();
+
+
             // Исправить валидацию входящих данных в фильтры
             // if ((fT == true) || (fV == true) || (sV == true)) {
             //     panel.addComponent(new Label("НЕВЕРНЫЕ ФИЛЬТРЫ. Не используйите числа при фильтрации"));
             // }
             // Дописать SQL запрос
-            var DBResponse = DBHelper.getDataFromDB("", filterType, filterValue, sortValue);
         });
         Button exit = new Button("Выход", findBin::close);
         // Отрисовать таблицу и после получения DBResponse заполнить таблицу данными из списка
@@ -184,6 +268,12 @@ public class TermMenus {
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
         Label DisplayLabel = new Label("ПОИСК ПЛАТЕЖЕЙ");
+    }
+
+    private static class row {
+
+        public row() {
+        }
     }
 
 
