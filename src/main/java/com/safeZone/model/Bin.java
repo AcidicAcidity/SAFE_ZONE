@@ -1,3 +1,4 @@
+package com.safeZone.model;
 public class Bin {
 
     private int ID;

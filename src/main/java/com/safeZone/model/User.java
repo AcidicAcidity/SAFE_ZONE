@@ -1,3 +1,4 @@
+package com.safeZone.model;
 public class User {
     private int ID;
     private String login;
@@ -18,14 +19,14 @@ public class User {
             this.description = description;
         }
         // Методы для получения кода и расшифровки статуса
-        public int getCodeStutus() { return code; }
+        public int getCodeStatus() { return code; }
         public String getDescriptionStatus() { return description; }
         // Метод для получения enum статуса по коду пользователя из БД
         public static Status getStatus(int code) {
             for (Status s : values()) {
-                if (s.getCode() == code) { return s; }
+                if (s.getCodeStatus() == code) { return s; }
             }
-            throw new UnknowCodeStatusUser("Неизвестный код статуса пользователя:" + code)
+            throw new IllegalArgumentException("Неизвестный код статуса пользователя:" + code);
         }
     }
     public enum Role {
@@ -46,7 +47,7 @@ public class User {
             for (Role s : values()) {
                 if (s.getCodeRole() == code) { return s; }
             }
-            throw new UnknowCodeRoleUser("Неизвестный код роли пользователя:" + code)
+            throw new IllegalArgumentException("Неизвестный код роли пользователя:" + code);
         }
 
     }
