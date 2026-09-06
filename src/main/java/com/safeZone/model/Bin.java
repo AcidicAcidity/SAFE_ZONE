@@ -2,15 +2,15 @@ package com.safeZone.model;
 public class Bin {
 
     private int Bin_ID;
-    private int Price_One_Hour;
+    private int PriceAtHour;
     private int pos_x;
     private int pos_y;
     private String size;
     private boolean status;
 
-    public Bin(int Bin_ID, int Price_One_Hour, int pos_x, int pos_y, String size, boolean status) {
+    public Bin(int Bin_ID, int PriceAtHour, int pos_x, int pos_y, String size, boolean status) {
         this.Bin_ID = Bin_ID;
-        this.Price_One_Hour = Price_One_Hour;
+        this.PriceAtHour = PriceAtHour;
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.size = size;

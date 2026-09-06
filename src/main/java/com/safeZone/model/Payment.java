@@ -3,9 +3,10 @@ import java.time.LocalDateTime;
 
 import org.postgresql.util.LruCache.CreateAction;
 public class Payment {
+
     private int Order_ID;
     private Bin Bin_ID;
-    private Bin Price_One_Hour;
+    private Bin PriceAtHour;
     private StatusOrder status;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
@@ -35,10 +36,10 @@ public class Payment {
             } throw new IllegalArgumentException("Неизвестный код статуса заказа:" + code);
         }
     }
-    public Payment(int Order_ID, Bin Bin_ID, Bin Price_One_Hour, StatusOrder status, LocalDateTime created_at, LocalDateTime updated_at, LocalDateTime end_rent_date, User User_ID) {
+    public Payment(int Order_ID, Bin Bin_ID, Bin PriceAtHour, StatusOrder status, LocalDateTime created_at, LocalDateTime updated_at, LocalDateTime end_rent_date, User User_ID) {
         this.Order_ID = Order_ID;
         this.Bin_ID = Bin_ID;
-        this.Price_One_Hour = Price_One_Hour;
+        this.PriceAtHour = PriceAtHour;
         this.status = status;
         this.created_at = created_at;
         this.updated_at = updated_at;
