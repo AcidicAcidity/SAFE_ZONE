@@ -10,11 +10,12 @@ public class Bin {
 
     public Bin(int Bin_ID, int Price_One_Hour, int pos_x, int pos_y, String size, boolean status) {
         this.Bin_ID = Bin_ID;
-        this.Price = Price_One_Hour;
+        this.Price_One_Hour = Price_One_Hour;
         this.pos_x = pos_x;
         this.pos_y = pos_y;
         this.size = size;
         this.status = status;
     }
+
     // геттеры и сеттеры дописать в случае надобности
 }
