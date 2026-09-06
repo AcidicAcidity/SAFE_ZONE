@@ -1,6 +1,6 @@
 package com.safeZone.model;
 public class User {
-    private int ID;
+    private int User_ID;
     private String login;
     private String password;
     private Status status;
@@ -51,8 +51,8 @@ public class User {
         }
 
     }
-    public User(int ID, String login, String password, Status status, Role role) {
-        this.ID = ID;
+    public User(int User_ID, String login, String password, Status status, Role role) {
+        this.User_ID = User_ID;
         this.login = login;
         this.password = password;
         this.status = status;
