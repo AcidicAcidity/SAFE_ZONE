@@ -51,6 +51,7 @@ public class AuthMenu {
         panel.addComponent(new Label("SAFE ZONE"));
         panel.addComponent(signIn);
         panel.addComponent(signUp);
+        panel.addComponent(new EmptySpace());
         panel.addComponent(exit);
 
         mainWindow.setComponent(panel);
@@ -78,10 +79,10 @@ public class AuthMenu {
                     }
                 } else {
                     log.error("Invalid username or password");
-                    panel.addComponent(new Label("Invalid username or password"));
+                    MessageDialog.showMessageDialog(gui, "Error", "Invalid username or password");
                 }
             } else {
-                panel.addComponent(new Label("Username and password cannot be empty"));
+                MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
             }
         });
         Button signUpButton = new Button("Зарегистрироваться", () -> {
@@ -117,7 +118,7 @@ public class AuthMenu {
                     log.error("Failed to start app menus", e);
                 }
             } else {
-                panel.addComponent(new Label("Username and password cannot be empty"));
+                MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
             }
         });
         panel.addComponent(new Label("SAFE_ZONE"));
