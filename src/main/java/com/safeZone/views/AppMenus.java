@@ -21,11 +21,21 @@ import org.slf4j.*;
 public class AppMenus {
 
     private static final Logger log = LoggerFactory.getLogger(AppMenus.class);
-    private final DBHelper dbHelper;
+    private DBHelper dbHelper;
     private static WindowBasedTextGUI gui;
 
-    public AppMenus(DBHelper dbHelper){
-        this.dbHelper = dbHelper;
+    private final RentMenu rentMenu;
+    private final BinMenu binMenu;
+    private final PaymentMenu paymentMenu;
+    private final UserMenu userMenu;
+    private final StatsMenu statsMenu;
+
+    public AppMenus(RentMenu rentMenu, BinMenu binMenu, PaymentMenu paymentMenu, UserMenu userMenu, StatsMenu statsMenu) {
+        this.rentMenu = rentMenu;
+        this.binMenu = binMenu;
+        this.paymentMenu = paymentMenu;
+        this.userMenu = userMenu;
+        this.statsMenu = statsMenu;
     }
 
     public void start() throws Exception {
@@ -49,13 +59,13 @@ public class AppMenus {
         return false;
     }
 
-    private void showMainMenu() {
+    public void showMainMenu() {
         BasicWindow mainWindow = new BasicWindow("Главное меню");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
         Button rent = new Button("Зарегестрировать аренду", () -> {
             mainWindow.close();
-            showSizeWindow();
+            rentMenu.showRentMenu();
         });
         Button filter = new Button("Найти сущность (ячейка/платеж)", () -> {
             mainWindow.close();
@@ -89,37 +99,6 @@ public class AppMenus {
         gui.addWindowAndWait(mainWindow);
     }
 
-    private void showSizeWindow() {
-        BasicWindow sizeWindow = new BasicWindow("Аренда");
-        Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
-
-        Button small = new Button("Маленькая", () -> {
-            sizeWindow.close();
-            showDateWindow();
-        });
-        Button middle = new Button("Средняя", () -> {
-            sizeWindow.close();
-            showDateWindow();
-        });
-        Button big = new Button("Большая", () -> {
-            sizeWindow.close();
-            showDateWindow();
-        });
-        Button exit = new Button("Выход", () -> {
-            sizeWindow.close();
-            showMainMenu();
-        });
-
-        panel.addComponent(new Label("ВЫБЕРИТЕ РАЗМЕР ЯЧЕЙКИ"));
-        panel.addComponent(small);
-        panel.addComponent(middle);
-        panel.addComponent(big);
-        panel.addComponent(new EmptySpace());
-        panel.addComponent(exit);
-
-        sizeWindow.setComponent(panel);
-        gui.addWindowAndWait(sizeWindow);
-    }
 
     private void showFilterWindow() {
         BasicWindow filterWindow = new BasicWindow("Поиск ячейки или платежа");
