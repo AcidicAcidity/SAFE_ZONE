@@ -1,5 +1,8 @@
 {
   "host": "localhost",
   "port": 5432,
-  "database": "nameYourDB"
+  "database": "nameYourDB",
+  "user": "postgres",
+  "password": "your_db_password",
+  "token": "placement_tokens"
 }
