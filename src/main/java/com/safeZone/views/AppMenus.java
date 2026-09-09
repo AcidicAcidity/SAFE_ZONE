@@ -276,7 +276,8 @@ public class AppMenus {
         BasicWindow findPayment = new BasicWindow("Поиск платежа");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
-        Label DisplayLabel = new Label("ПОИСК ПЛАТЕЖЕЙ");
+        panel.addComponent(new Label("ПОИСК ПЛАТЕЖЕЙ"));
+
     }
 
 
