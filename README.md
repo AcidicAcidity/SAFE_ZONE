@@ -14,3 +14,6 @@
 Чтобы запустить сборку или обновить зависимости после изменеия pom.xml 
 В терминал
 mvn clean compile -U
+
+
+![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=AcidicAcidity&hide=prs,issues)
