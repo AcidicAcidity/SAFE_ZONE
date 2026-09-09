@@ -24,4 +24,5 @@ public class JsonReader {
         log.info("Чтение завершено.");
         return objectMapper.readValue(fileName, JsonData.class);
     }
+
 }

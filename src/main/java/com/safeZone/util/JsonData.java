@@ -8,6 +8,8 @@ public class JsonData {
     private String database;
     private String password;
     private String user;
+    private String token;
+
     // Пустой конструктор для Jackson
     public JsonData(){
     }
@@ -51,5 +53,13 @@ public class JsonData {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

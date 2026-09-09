@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDateTime;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +79,27 @@ public class DBHelper {
     }
 
     public void addUser(String username, String password)  {
+        // Добавление пользователя в базу данных
+    }
 
+    public int createPayment(LocalDateTime rentTime, String size, int binId, String token) {
+        // Создание платежа в базе данных
+        // Возвращает ID созданного платежа
+        return 0;
+    }
+
+    public String getPaymentStatus(int paymentId) {
+        // Получение статуса платежа
+        return null;
+    }
+
+    public List<Map<String, Object>> getPayments(LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime endRentDate, int binId, int userId) {
+        return null; // Поиск платежей с фильтрацией или все что есть
+    }
+
+    public int findFreeBin(String size, LocalDateTime rentTime) {
+        // Поиск свободного бинна для размера и времени аренды
+        // Возвращает ID найденной ячейки = Int(pos_x + pos_y)
+        return 0;
     }
 }
