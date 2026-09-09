@@ -2,6 +2,7 @@ package com.safeZone.views;
 
 import com.googlecode.lanterna.*;
 import org.slf4j.*;
+import com.safeZone.util.DBHelper;
 
 public class AuthMenu {
     private static final Logger log = LoggerFactory.getLogger(AuthMenu.class);

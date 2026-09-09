@@ -2,6 +2,7 @@ package com.safeZone.model;
 import java.time.LocalDateTime;
 
 import org.postgresql.util.LruCache.CreateAction;
+
 public class Payment {
 
     private int Order_ID;
@@ -12,6 +13,7 @@ public class Payment {
     private LocalDateTime updated_at;
     private LocalDateTime end_rent_date;
     private User User_ID;
+
     public enum StatusOrder {
         PENDING(1, "ОЖИДАЕТ ОПЛАТЫ"),
         PAID(2, "ОПЛАЧЕН"),

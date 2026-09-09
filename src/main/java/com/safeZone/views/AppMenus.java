@@ -18,13 +18,13 @@ import java.util.Map;
 
 import org.slf4j.*;
 
-public class TermMenus {
+public class AppMenus {
 
-    private static final Logger log = LoggerFactory.getLogger(TermMenus.class);
+    private static final Logger log = LoggerFactory.getLogger(AppMenus.class);
     private final DBHelper dbHelper;
     private static WindowBasedTextGUI gui;
 
-    public TermMenus(DBHelper dbHelper){
+    public AppMenus(DBHelper dbHelper){
         this.dbHelper = dbHelper;
     }
 
@@ -234,20 +234,16 @@ public class TermMenus {
             resultTable.getTableModel().clear();
             if (rows != null && !rows.isEmpty()){
                 for (Map<String, Object> row : rows) {
-                    resultTable.getTableModel().addRow(new String[]{
-                        String.valueOf(row.get("id")),
-                        String.valueOf(row.get("price")),
-                        String.valueOf(row.get("pos_x")),
-                        String.valueOf(row.get("pos_y")),
-                        String.valueOf(row.get("size")),
-                        String.valueOf(row.get("status")),
-                    });
+                    String id = String.valueOf(row.get("id"));
+                    String price = String.valueOf(row.get("price"));
+                    String position = String.valueOf(row.get("pos_x")) + " " + String.valueOf(row.get("pos_y"));
+                    String size = String.valueOf(row.get("size"));
+                    String status = String.valueOf(row.get("status"));
+                    resultTable.addRow(id, price, position, size, status);
                 }
-                if (!panel.getChildren().contains(resultTable)){
-                    panel.addComponent(resultTable);
-                }
+                resultTable.setVisible(true);
             }else{
-                panel.removeComponent(resultTable);
+                resultTable.setVisible(false);
             }
             findBin.invalidate();
 

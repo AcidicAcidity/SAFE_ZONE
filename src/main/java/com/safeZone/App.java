@@ -58,7 +58,7 @@ public class App {
         }
 
         try {
-            new TermMenus(dbHelper).start();
+            new AuthMenu(dbHelper).start();
         } catch (Exception e) {
             log.error("GUI START ERROR: ", e);
         }
