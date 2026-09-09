@@ -69,4 +69,14 @@ public class DBHelper {
             return ps.executeUpdate();
         }
     }
+
+    public boolean userAuth(String username, String password)  {
+        return true;
+        // ЗАГЛУШКА
+        // СДЕЛАТЬ ПРОВЕРКУ АВТОРИЗАЦИИ
+    }
+
+    public void addUser(String username, String password)  {
+
+    }
 }

@@ -234,16 +234,19 @@ public class AppMenus {
             resultTable.getTableModel().clear();
             if (rows != null && !rows.isEmpty()){
                 for (Map<String, Object> row : rows) {
-                    String id = String.valueOf(row.get("id"));
-                    String price = String.valueOf(row.get("price"));
-                    String position = String.valueOf(row.get("pos_x")) + " " + String.valueOf(row.get("pos_y"));
-                    String size = String.valueOf(row.get("size"));
-                    String status = String.valueOf(row.get("status"));
-                    resultTable.addRow(id, price, position, size, status);
+                    resultTable.getTableModel().addRow(new String[]{
+                        String.valueOf(row.get("id")),
+                        String.valueOf(row.get("price")),
+                        String.valueOf(row.get("pos_x")) + " " + String.valueOf(row.get("pos_y")),
+                        String.valueOf(row.get("size")),
+                        String.valueOf(row.get("status"))
+                    });
                 }
-                resultTable.setVisible(true);
+                if (!panel.getChildren().contains(resultTable)) {
+                    panel.addComponent(resultTable);
+                }
             }else{
-                resultTable.setVisible(false);
+                panel.removeComponent(resultTable);
             }
             findBin.invalidate();
 
@@ -265,6 +268,10 @@ public class AppMenus {
         gui.addWindowAndWait(findBin);
     }
 
+    private void showDateWindow() {
+        //
+    }
+
     private void findPaymentWindow() {
         BasicWindow findPayment = new BasicWindow("Поиск платежа");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
@@ -272,4 +279,16 @@ public class AppMenus {
         Label DisplayLabel = new Label("ПОИСК ПЛАТЕЖЕЙ");
     }
 
+
+    private void findUserWindow() {
+        //
+    }
+
+    private void showStatsWindow() {
+        //
+    }
+
+    private void showExportWindow() {
+        //
+    }
 }
