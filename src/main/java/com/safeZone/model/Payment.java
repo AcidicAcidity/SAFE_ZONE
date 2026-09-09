@@ -9,6 +9,7 @@ public class Payment {
     private Bin Bin_ID;
     private Bin PriceAtHour;
     private StatusOrder status;
+    private LocalDateTime rentTime; //На сколько часов арендован
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
     private LocalDateTime end_rent_date;
@@ -17,7 +18,8 @@ public class Payment {
     public enum StatusOrder {
         PENDING(1, "ОЖИДАЕТ ОПЛАТЫ"),
         PAID(2, "ОПЛАЧЕН"),
-        CANCELLED(3, "ОТМЕНЕН");
+        CANCELLED(3, "ОТМЕНЕН"),
+        REFUNDED(4, "Возвращен");
 
         private final int code;
         private final String description;
@@ -38,11 +40,12 @@ public class Payment {
             } throw new IllegalArgumentException("Неизвестный код статуса заказа:" + code);
         }
     }
-    public Payment(int Order_ID, Bin Bin_ID, Bin PriceAtHour, StatusOrder status, LocalDateTime created_at, LocalDateTime updated_at, LocalDateTime end_rent_date, User User_ID) {
+    public Payment(int Order_ID, Bin Bin_ID, Bin PriceAtHour, StatusOrder status, LocalDateTime rentTime, LocalDateTime created_at, LocalDateTime updated_at, LocalDateTime end_rent_date, User User_ID) {
         this.Order_ID = Order_ID;
         this.Bin_ID = Bin_ID;
         this.PriceAtHour = PriceAtHour;
         this.status = status;
+        this.rentTime = rentTime;
         this.created_at = created_at;
         this.updated_at = updated_at;
         this.end_rent_date = end_rent_date;
