@@ -72,14 +72,52 @@ public class DBHelper {
         }
     }
 
-    public boolean userAuth(String username, String password)  {
-        return true;
-        // ЗАГЛУШКА
-        // СДЕЛАТЬ ПРОВЕРКУ АВТОРИЗАЦИИ
-    }
+    // ПРОВЕРКА НА АВТОРИЗАЦИЮ
+    public boolean userAuth(String login, String password) throws SQLException {
+        if (login == null || login.isBlank() ||
+            password == null || password.isBlank()) {
+            log.error("Неверный логин или пароль");
+            return false;
+        }
+        String sql = "SELECT 1 FROM users WHERE login = ? AND password =? LIMIT 1";
+        try (Connection conn = dbUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1,login);
+            ps.setString(2,password);
+            try (ResultSet rs = ps.executeQuery()){
+                return rs.next();
+            }
 
-    public void addUser(String username, String password)  {
-        // Добавление пользователя в базу данных
+        } catch (SQLException e) {
+            log.error("Ошибка подключения к БД: {}", e.getMessage(), e);
+            return false;
+        }
+    }
+// Добавление пользователя в базу данных
+    public void addUser(String login, String password) throws SQLException  {
+        if (login == null || login.isBlank()||
+            password == null || password.isBlank()){
+            log.error("Пустой логин или пароль — пользователь не добавлен");
+            return;
+            }
+        String sql = "INSERT INTO users (login, password, status, role) VALUES (?,?,active,client)";
+        try (Connection conn = dbUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1,login);
+            ps.setString(2,password);
+
+            ps.executeUpdate();
+            log.info("Вы успешно зарегестрированны!");
+
+        } catch (SQLException e) {
+            if ("23505".equals(e.getSQLState())){
+                log.error("Такой логин '{}' уже занят");
+            }else{
+                log.error("Ошибка добавления пользователя: {}", e.getMessage(), e);
+            }
+        }
     }
 
     public int createPayment(LocalDateTime rentTime, String size, int binId, String token) {
