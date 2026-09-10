@@ -73,11 +73,11 @@ public class AppMenus {
         });
         Button userSearch = new Button("Список пользователей", () -> {
             mainWindow.close();
-            findUserWindow();
+            userMenu.findUser();
         });
         Button stats = new Button("Статистика ячеек", () -> {
             mainWindow.close();
-            showStatsWindow();
+            statsMenu.showStats();
         });
         Button export = new Button("Экспорт данных", () -> {
             mainWindow.close();
@@ -104,15 +104,13 @@ public class AppMenus {
         BasicWindow filterWindow = new BasicWindow("Поиск ячейки или платежа");
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
-        Label DisplayLabel = new Label("ВЫБЕРИТЕ СУЩНОСТЬ ДЛЯ ПОИСКА: ");
-
         Button bin = new Button("Ячейки", () -> {
             filterWindow.close();
-            findBinWindow();
+            // binMenu.findBinWindow();
         });
         Button payments = new Button("Платежи", () -> {
             filterWindow.close();
-            findPaymentWindow();
+            paymentMenu.paymentWindow();
         });
         Button exit = new Button("Выход", () -> {
             filterWindow.close();
