@@ -8,3 +8,4 @@ target/*
 .classpath
 .idea/
 dependency-reduced-pom.xml
+logs/*
