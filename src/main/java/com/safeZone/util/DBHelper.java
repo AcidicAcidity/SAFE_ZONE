@@ -72,10 +72,26 @@ public class DBHelper {
         }
     }
 
-    public boolean userAuth(String username, String password)  {
-        return true;
-        // ЗАГЛУШКА
-        // СДЕЛАТЬ ПРОВЕРКУ АВТОРИЗАЦИИ
+    // ПРОВЕРКА НА АВТОРИЗАЦИЮ
+    public boolean userAuth(String username, String password) throws SQLException {
+        if (username == null || username.isBlank() ||
+            password == null || password.isBlank()) {
+            return false;
+        }
+        String sql = "SELECT 1 FROM users WHERE login = ? AND password =? LIMIT 1";
+        try (Connection conn = dbUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1,username);
+            ps.setString(2,password);
+            try (ResultSet rs = ps.executeQuery()){
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            log.error("Ошибка подключения к БД: {}", e.getMessage(), e);
+            return false;
+        }
     }
 
     public void addUser(String username, String password)  {
