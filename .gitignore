@@ -7,3 +7,4 @@ target/*
 .settings/
 .classpath
 .idea/
+dependency-reduced-pom.xml
