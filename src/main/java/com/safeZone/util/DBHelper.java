@@ -76,7 +76,7 @@ public class DBHelper {
     public int executeInsertReturning(String sql, Object... params) throws SQLException{
         try (Connection conn = dbUtils.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql)){
-            for (int i = 0; i < pararms.lenght; i++){
+            for (int i = 0; i < params.length; i++){
                 ps.setObject(i + 1, params[i]);
             }
             try (ResultSet rs = ps.executeQuery()){
