@@ -106,6 +106,7 @@ public class AppMenus {
 
         Button bin = new Button("Ячейки", () -> {
             filterWindow.close();
+            binMenu.binWindow();
             // binMenu.findBinWindow();
         });
         Button payments = new Button("Платежи", () -> {
