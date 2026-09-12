@@ -117,7 +117,7 @@ public class SafeZoneService {
             return false;
         }
     }
-    //Этот метод нужен для поиска ячеек по x и y
+    //Этот метод нужен для поиска Айди ячеек по x и y
         public Integer findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
         String sql = switch (type) {
             case BIN -> "SELECT bin_id FROM bins " +
@@ -152,6 +152,49 @@ public class SafeZoneService {
         return ((Number) id).intValue();
     }
     //а тут уже наши любимые мапперы
-    
+        public User mapUser(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getInt("id"),
+                rs.getString("login"),
+                rs.getString("password"),
+                User.Status.getStatus(statusToInt(rs.getString("status"))),
+                User.Role.getRole(roleToInt(rs.getString("role")))
+        );
+    }
+
+    public Bin mapBin(ResultSet rs) throws SQLException {
+        return new Bin(
+                rs.getInt("bin_id"),
+                rs.getInt("priceathour"),
+                rs.getInt("pos_x"),
+                rs.getInt("pos_y"),
+                rs.getString("size"),
+                "true".equalsIgnoreCase(rs.getString("status"))
+        );
+    }
+
+    public Payment mapPayment(ResultSet rs) throws SQLException {
+        Timestamp createdTs = rs.getTimestamp("created_at");
+        Timestamp updateTs  = rs.getTimestamp("update_at");
+        Timestamp endTs     = rs.getTimestamp("end_rent_date");
+
+        Bin stubBin = new Bin(rs.getInt("bin_id"), rs.getInt("priceathour"),
+                              0, 0, "unknown", false);
+        User stubUser = new User(rs.getInt("user_id"), null, null,
+                                 User.Status.ACTIVE, User.Role.CLIENT);
+
+        return new Payment(
+                rs.getInt("order_id"),
+                stubBin,
+                stubBin,
+                Payment.StatusOrder.getStatusOrder(
+                        statusOrderToInt(rs.getString("status"))),
+                null,
+                createdTs != null ? createdTs.toLocalDateTime() : null,
+                updateTs  != null ? updateTs.toLocalDateTime()  : null,
+                endTs     != null ? endTs.toLocalDateTime()     : null,
+                stubUser
+        );
+    }
 
 }
