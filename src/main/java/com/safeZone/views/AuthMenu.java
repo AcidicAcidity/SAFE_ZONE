@@ -3,6 +3,8 @@ package com.safeZone.views;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.ThemeDefinition;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.slf4j.*;
 import java.sql.SQLException;
@@ -23,10 +25,17 @@ public class AuthMenu {
     }
 
     public void start() throws Exception {
-        Screen screen = new DefaultTerminalFactory().createScreen();
+        Screen screen = new DefaultTerminalFactory()
+                .setTerminalEmulatorTitle("SafeZone")
+                .createScreen();
         screen.startScreen();
 
-        gui = new MultiWindowTextGUI(screen);
+        MultiWindowTextGUI gui = new MultiWindowTextGUI(
+            screen,
+            new DefaultWindowManager(),
+            new EmtpySpace(TextColor.ANSI.BLACK)
+        );
+        gui.setTheme(new ThemeGUI());
 
         showAuthMenu();
 
