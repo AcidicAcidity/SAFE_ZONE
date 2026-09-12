@@ -63,7 +63,7 @@ public class UserMenu {
         panel.addComponent(new EmptySpace());
         panel.addComponent(exit);
 
-        gui.addWindowAndWait(userWindow);
+        gui.addWindow(userWindow);
 
     }
 }

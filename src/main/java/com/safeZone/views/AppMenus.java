@@ -98,7 +98,7 @@ public class AppMenus {
         panel.addComponent(exit);
 
         mainWindow.setComponent(panel);
-        gui.addWindowAndWait(mainWindow);
+        gui.addWindow(mainWindow);
     }
 
 
@@ -126,7 +126,7 @@ public class AppMenus {
         panel.addComponent(exit);
 
         filterWindow.setComponent(panel);
-        gui.addWindowAndWait(filterWindow);
+        gui.addWindow(filterWindow);
     }
 
 }

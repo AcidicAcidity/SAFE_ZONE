@@ -105,6 +105,6 @@ public class RentMenu {
         panel.addComponent(exit);
 
         dateWindow.setComponent(panel);
-        gui.addWindowAndWait(dateWindow);
+        gui.addWindow(dateWindow);
     }
 }

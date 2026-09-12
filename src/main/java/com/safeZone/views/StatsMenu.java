@@ -30,6 +30,6 @@ public class StatsMenu {
         // тут запрос в БД где мы берем ячейку и пробиваем все платежи по этой ячейке.
         // Отдельно ищем самую длинную аренду и текущий статус ячейки
         //
-        gui.addWindowAndWait(statsWindow);
+        gui.addWindow(statsWindow);
     }
 }

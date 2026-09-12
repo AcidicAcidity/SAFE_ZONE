@@ -61,6 +61,6 @@ public class BinMenu {
         //Таблица
 
         binList.setComponent(panel);
-        gui.addWindowAndWait(binList);
+        gui.addWindow(binList);
     }
 }

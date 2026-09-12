@@ -57,6 +57,6 @@ public class PaymentMenu {
         panel.addComponent(filterPanel);
 
         paymentWindow.setComponent(panel);
-        gui.addWindowAndWait(paymentWindow);
+        gui.addWindow(paymentWindow);
     }
 }
