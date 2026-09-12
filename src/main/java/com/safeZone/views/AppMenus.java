@@ -5,6 +5,10 @@ import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.ThemeDefinition;
+import com.googlecode.lanterna.gui2.Window.Hint;
+
 import com.safeZone.util.DBHelper;
 import com.safeZone.util.createExport;
 
@@ -63,42 +67,66 @@ public class AppMenus {
 
     public void showMainMenu() {
         BasicWindow mainWindow = new BasicWindow("Главное меню");
-        Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
+        mainWindow.setHints(Arrays.asList(Window.Hint.CENTERED, Window.Hint.FIXED_SIZE));
+        mainWindow.setFixedSize(new TerminalSize(50, 20));
+        Panel panel = new Panel(new GridLayout(1)
+            .setHorizontalSpacing(2)
+            .setVerticalSpacing(1)
+            .setLeftMarginSize(4)
+            .setRightMarginSize(1)
+            .setTopMarginSize(1)
+            .setBottomMarginSize(1));
 
-        Button rent = new Button("Зарегестрировать аренду", () -> {
+        Label title = new Label("S A F E   Z O N E");
+        title.setLayoutData(GridLayout.createLayoutData(
+            GridLayout.Alignment.CENTER, GridLayout.Alignment.CENTER,
+            true, false));
+
+        Label subtitle = new Label("Система управления ячейками");
+        subtitle.setLayoutData(GridLayout.createLayoutData(
+            GridLayout.Alignment.CENTER, GridLayout.Alignment.CENTER));
+
+        panel.addComponent(title);
+        panel.addComponent(subtitle);
+        panel.addComponent(new EmptySpace(new TerminalSize(0, 1)));
+
+        panel.addComponent(makeFullWidthButton("Зарегестрировать аренду", () -> {
             mainWindow.close();
             rentMenu.showRentMenu();
-        });
-        Button filter = new Button("Найти сущность (ячейка/платеж)", () -> {
+        }));
+        panel.addComponent(makeFullWidthButton("Найти сущность (ячейка/платеж)", () -> {
             mainWindow.close();
             showFilterWindow();
-        });
-        Button userSearch = new Button("Список пользователей", () -> {
+        }));
+        panel.addComponent(makeFullWidthButton("Список пользователей", () -> {
             mainWindow.close();
             userMenu.findUser();
-        });
-        Button stats = new Button("Статистика ячеек", () -> {
+        }));
+        panel.addComponent(makeFullWidthButton("Статистика ячеек", () -> {
             mainWindow.close();
             statsMenu.showStats();
-        });
-        Button export = new Button("Экспорт данных", () -> {
+        }));
+        panel.addComponent(makeFullWidthButton("Экспорт данных", () -> {
             mainWindow.close();
             createExport.getExportFile();
-        });
-        Button exit = new Button("Выход", () -> {
+        }));
+        panel.addComponent(new EmptySpace(new TerminalSize(0, 1)))
+        panel.addComponent(makeFullWidthButton("Выход", () -> {
             mainWindow.close();
             System.exit(0);
-        });
+        }));
 
-        panel.addComponent(rent);
-        panel.addComponent(filter);
-        panel.addComponent(stats);
-        panel.addComponent(export);
-        panel.addComponent(new EmptySpace());
-        panel.addComponent(exit);
 
         mainWindow.setComponent(panel);
         gui.addWindow(mainWindow);
+    }
+
+    private Button makeFullWidthButton(String text, Runnable action) {
+        Button b = new Button(text, action);
+        b.setLayoutData(GridLayout.createLayoutData(
+            GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER,
+            true, false));
+        return b;
     }
 
 
