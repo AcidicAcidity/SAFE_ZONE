@@ -76,6 +76,7 @@ public class SafeZoneService {
             throw e;
         }
     }
+
     //А этот метод нужен для проверки всех этих сущностей 
         public boolean checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
@@ -117,6 +118,7 @@ public class SafeZoneService {
             return false;
         }
     }
+
     //Этот метод нужен для поиска Айди ячеек по x и y
         public Integer findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
         String sql = switch (type) {
@@ -134,6 +136,7 @@ public class SafeZoneService {
         Object id = rows.get(0).values().iterator().next();
         return ((Number) id).intValue();
     }
+
     // так это уже будет поиск свободных ячеек под размер и время 
         public Integer findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
         String sql = "SELECT b.bin_id FROM bins b " +
@@ -151,6 +154,7 @@ public class SafeZoneService {
         Object id = rows.get(0).values().iterator().next();
         return ((Number) id).intValue();
     }
+
     //а тут уже наши любимые мапперы
         public User mapUser(ResultSet rs) throws SQLException {
         return new User(
@@ -196,5 +200,33 @@ public class SafeZoneService {
                 stubUser
         );
     }
+
+    // обёртки для егора
+        public int createUser(String login, String password) throws SQLException {
+        return createEntity(EntityType.USER, Map.of(
+                "login", login, "password", password));
+    }
+
+    public boolean authUser(String login, String password) throws SQLException {
+        return checkEntity(EntityType.USER, Map.of(
+                "login", login, "password", password));
+    }
+
+    public int createPayment(int binId, int userId, int priceAtHour,
+                             LocalDateTime endRentDate, int rentTime) throws SQLException {
+        return createEntity(EntityType.PAYMENT, Map.of(
+                "Bin_ID", binId,
+                "User_ID", userId,
+                "PriceAtHour", priceAtHour,
+                "end_rent_date", Timestamp.valueOf(endRentDate),
+                "rentTime", rentTime));
+    }
+
+    public boolean isPaymentPaid(int orderId) throws SQLException {
+        return checkEntity(EntityType.PAYMENT, Map.of("Order_ID", orderId));
+    }
+
+    //Приватные хелперы
+
 
 }
