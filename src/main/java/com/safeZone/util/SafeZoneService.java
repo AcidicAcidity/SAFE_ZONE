@@ -227,6 +227,39 @@ public class SafeZoneService {
     }
 
     //Приватные хелперы
+    private static boolean isBlank(Object o) {
+        return o == null || o.toString().isBlank();
+    }
+
+    private static int statusToInt(String s) {
+        if (s == null) return 0;
+        return switch (s.toLowerCase()) {
+            case "active"  -> 1;
+            case "blocked" -> 2;
+            case "deleted" -> 3;
+            default -> throw new IllegalArgumentException("Неизвестный статус юзера: " + s);
+        };
+    }
+
+    private static int roleToInt(String s) {
+        if (s == null) return 0;
+        return switch (s.toLowerCase()) {
+            case "client" -> 1;
+            case "admin"  -> 2;
+            default -> throw new IllegalArgumentException("Неизвестная роль: " + s);
+        };
+    }
+
+    private static int statusOrderToInt(String s) {
+        if (s == null) return 0;
+        return switch (s.toLowerCase()) {
+            case "pending"   -> 1;
+            case "paid"      -> 2;
+            case "cancelled" -> 3;
+            case "refunded"  -> 4;
+            default -> throw new IllegalArgumentException("Неизвестный статус платежа: " + s);
+        };
+    }
 
 
 }
