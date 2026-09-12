@@ -23,16 +23,14 @@ public class SafeZoneService {
     public SafeZoneService(DBHelper db) {
         this.db = db;
     }
-        // createEntity нужен для осдание сущностей, это значит с помощью его мы делаем в таблице запросы на добовление юзеров, платежей и тд
-        public int createEntity(EntityType type, Map<String, Object> p) throws SQLException {
+    // createEntity нужен для осдание сущностей, это значит с помощью его мы делаем в таблице запросы на добовление юзеров, платежей и тд
+    public int createEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("createEntity: params == null, type = {}", type);
             return -1;
         }
-
         String sql;
         List<Object> args = new ArrayList<>();
-
         switch (type) {
             case USER -> {
                 if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
@@ -64,7 +62,6 @@ public class SafeZoneService {
             }
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
         }
-
         try {
             return db.executeInsertReturning(sql, args.toArray());
         } catch (SQLException e) {
@@ -76,17 +73,14 @@ public class SafeZoneService {
             throw e;
         }
     }
-
-    //А этот метод нужен для проверки всех этих сущностей 
-        public boolean checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
+    //А этот метод нужен для проверки всех этих сущностей  
+    public boolean checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("checkEntity: params == null, type = {}", type);
             return false;
         }
-
         String sql;
         List<Object> args = new ArrayList<>();
-
         switch (type) {
             case USER -> {
                 if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
@@ -103,13 +97,11 @@ public class SafeZoneService {
                 args.add(p.get("Order_ID"));
             }
             case BIN -> {
-                sql = "SELECT 1 FROM bins " +
-                      "WHERE size = ? AND status = 'true' LIMIT 1";
+                sql = "SELECT 1 FROM bins WHERE size = ? AND status = 'true' LIMIT 1";
                 args.add(p.get("size"));
             }
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
         }
-
         try {
             List<Map<String, Object>> rows = db.getDataFromDB(sql, args.toArray());
             return !rows.isEmpty();
@@ -118,27 +110,23 @@ public class SafeZoneService {
             return false;
         }
     }
-
     //Этот метод нужен для поиска Айди ячеек по x и y
-        public Integer findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
+    public Integer findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
         String sql = switch (type) {
-            case BIN -> "SELECT bin_id FROM bins " +
-                        "WHERE pos_x = ? AND pos_y = ? LIMIT 1";
+            case BIN -> "SELECT bin_id FROM bins WHERE pos_x = ? AND pos_y = ? LIMIT 1";
             case PAYMENT -> "SELECT p.order_id FROM payments p " +
                             "JOIN bins b ON p.bin_id = b.bin_id " +
                             "WHERE b.pos_x = ? AND b.pos_y = ? LIMIT 1";
             default -> throw new IllegalArgumentException(
-                    "findIdByPosition работает только с BIN или PAYMENT, дано: " + type);
+                    "findIdByPosition только для BIN или PAYMENT, дано: " + type);
         };
-
         List<Map<String, Object>> rows = db.getDataFromDB(sql, posX, posY);
         if (rows.isEmpty()) return null;
         Object id = rows.get(0).values().iterator().next();
         return ((Number) id).intValue();
     }
-
     // так это уже будет поиск свободных ячеек под размер и время 
-        public Integer findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
+    public Integer findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
         String sql = "SELECT b.bin_id FROM bins b " +
                      "WHERE b.size = ? AND b.status = 'true' " +
                      "AND NOT EXISTS ( " +
@@ -147,16 +135,14 @@ public class SafeZoneService {
                      "  AND UPPER(p.status) IN ('PENDING', 'PAID') " +
                      "  AND p.end_rent_date > ? " +
                      ") LIMIT 1";
-
         List<Map<String, Object>> rows = db.getDataFromDB(sql, size,
                 Timestamp.valueOf(endRentDate));
         if (rows.isEmpty()) return null;
         Object id = rows.get(0).values().iterator().next();
         return ((Number) id).intValue();
     }
-
     //а тут уже наши любимые мапперы
-        public User mapUser(ResultSet rs) throws SQLException {
+    public User mapUser(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("id"),
                 rs.getString("login"),
@@ -181,12 +167,10 @@ public class SafeZoneService {
         Timestamp createdTs = rs.getTimestamp("created_at");
         Timestamp updateTs  = rs.getTimestamp("update_at");
         Timestamp endTs     = rs.getTimestamp("end_rent_date");
-
         Bin stubBin = new Bin(rs.getInt("bin_id"), rs.getInt("priceathour"),
                               0, 0, "unknown", false);
         User stubUser = new User(rs.getInt("user_id"), null, null,
                                  User.Status.ACTIVE, User.Role.CLIENT);
-
         return new Payment(
                 rs.getInt("order_id"),
                 stubBin,
@@ -200,9 +184,8 @@ public class SafeZoneService {
                 stubUser
         );
     }
-
     // обёртки для егора
-        public int createUser(String login, String password) throws SQLException {
+    public int createUser(String login, String password) throws SQLException {
         return createEntity(EntityType.USER, Map.of(
                 "login", login, "password", password));
     }
@@ -225,7 +208,6 @@ public class SafeZoneService {
     public boolean isPaymentPaid(int orderId) throws SQLException {
         return checkEntity(EntityType.PAYMENT, Map.of("Order_ID", orderId));
     }
-
     //Приватные хелперы
     private static boolean isBlank(Object o) {
         return o == null || o.toString().isBlank();
@@ -260,6 +242,4 @@ public class SafeZoneService {
             default -> throw new IllegalArgumentException("Неизвестный статус платежа: " + s);
         };
     }
-
-
 }
