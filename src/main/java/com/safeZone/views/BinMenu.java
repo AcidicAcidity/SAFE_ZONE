@@ -59,5 +59,8 @@ public class BinMenu {
         });
         panel.addComponent(exit);
         //Таблица
+
+        binList.setComponent(panel);
+        gui.addWindowAndWait(binList);
     }
 }
