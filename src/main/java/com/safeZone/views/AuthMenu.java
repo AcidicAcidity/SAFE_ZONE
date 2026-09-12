@@ -6,6 +6,7 @@ import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.slf4j.*;
+import java.sql.SQLException;
 import com.safeZone.util.DBHelper;
 
 public class AuthMenu {
@@ -69,18 +70,24 @@ public class AuthMenu {
             String password = passwordBox.getText();
 
             if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
-                if (dbHelper.userAuth(username, password) == true) {
-                    log.info("Authentication successful");
-                    signInWindow.close();
-                    try {
+                try {
+                    boolean isAuth = dbHelper.userAuth(username, password);
+                    if ( isAuth == true) {
+                        log.info("Authentication successful");
+                        signInWindow.close();
+
+                    } else {
+                        log.error("Invalid username or password");
+                        MessageDialog.showMessageDialog(gui, "Error", "Invalid username or password");
+                    }
+                } catch (SQLException e) {
+                    log.error("Failed to authenticate", e);
+                }
+                try {
                         appMenus.start();
                     } catch (Exception e) {
                         log.error("Failed to start app menus", e);
                     }
-                } else {
-                    log.error("Invalid username or password");
-                    MessageDialog.showMessageDialog(gui, "Error", "Invalid username or password");
-                }
             } else {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
             }
@@ -110,7 +117,11 @@ public class AuthMenu {
             String username = usernameBox.getText();
             String password = passwordBox.getText();
             if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
-                dbHelper.addUser(username, password);
+                try {
+                    dbHelper.addUser(username, password);
+                } catch (SQLException e) {
+                    log.error("Failed to add user", e);
+                }
                 signUpWindow.close();
                 try {
                     appMenus.start();
