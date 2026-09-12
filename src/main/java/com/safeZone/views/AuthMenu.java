@@ -40,9 +40,10 @@ public class AuthMenu {
 
         Button signIn = new Button("Войти", () -> {
             showSignInMenu();
-        });
+            mainWindow.close();    });
         Button signUp = new Button("Зарегистрироваться", () -> {
             showSignUpMenu();
+            mainWindow.close();
         });
         Button exit = new Button("Выход", () -> {
             mainWindow.close();
@@ -96,6 +97,10 @@ public class AuthMenu {
             signInWindow.close();
             showSignUpMenu();
         });
+        Button exit = new Button("Выход", () -> {
+            signInWindow.close();
+            showAuthMenu();
+        });
         panel.addComponent(new Label("SAFE_ZONE"));
         panel.addComponent(new EmptySpace());
         panel.addComponent(new Label("АВТОРИЗАЦИЯ"));
@@ -104,6 +109,7 @@ public class AuthMenu {
         panel.addComponent(signInButton);
         panel.addComponent(new EmptySpace());
         panel.addComponent(signUpButton);
+        panel.addComponent(exit);
         signInWindow.setComponent(panel);
         gui.addWindowAndWait(signInWindow);
     }
@@ -132,12 +138,17 @@ public class AuthMenu {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
             }
         });
+        Button exit = new Button("Выход", () -> {
+            signUpWindow.close();
+            showAuthMenu();
+        });
         panel.addComponent(new Label("SAFE_ZONE"));
         panel.addComponent(new EmptySpace());
         panel.addComponent(new Label("Регистрация"));
         panel.addComponent(usernameBox);
         panel.addComponent(passwordBox);
         panel.addComponent(signUpButton);
+        panel.addComponent(exit);
         signUpWindow.setComponent(panel);
         gui.addWindowAndWait(signUpWindow);
     }
