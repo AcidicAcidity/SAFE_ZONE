@@ -31,11 +31,11 @@ public class JsonData {
         this.port = port;
     }
 
-    public String getDataBase() {
+    public String getDatabase() {
         return database;
     }
 
-    public void setDataBase(String database) {
+    public void setDatabase(String database) {
         this.database = database;
     }
 
