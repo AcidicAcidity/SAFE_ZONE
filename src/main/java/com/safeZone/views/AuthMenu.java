@@ -40,7 +40,8 @@ public class AuthMenu {
 
         Button signIn = new Button("Войти", () -> {
             showSignInMenu();
-            mainWindow.close();    });
+            mainWindow.close();
+        });
         Button signUp = new Button("Зарегистрироваться", () -> {
             showSignUpMenu();
             mainWindow.close();
