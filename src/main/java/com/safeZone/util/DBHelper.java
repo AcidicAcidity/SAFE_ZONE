@@ -69,4 +69,20 @@ public class DBHelper {
             return ps.executeUpdate();
         }
     }
+    /**
+     * INSERT с RETURNING — возвращает сгенерированный id.
+     * Для PostgreSQL: "INSERT INTO ... RETURNING id".
+     */
+    public int executeInsertReturning(String sql, Object... params) throws SQLException{
+        try (Connection conn = dbUtils.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)){
+            for (int i = 0; i < pararms.lenght; i++){
+                ps.setObject(i + 1, params[i]);
+            }
+            try (ResultSet rs = ps.executeQuery()){
+            if (rs.next()) return rs.getInt(1);
+            }
+        }
+        return -1;
+    }
 }
