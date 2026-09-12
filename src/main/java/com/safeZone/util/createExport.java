@@ -1,7 +1,5 @@
 package com.safeZone.util;
 
 public class createExport {
-    public void getExportFile() {
-
-    }
+    // Класс для создания .csv файла БД
 }
