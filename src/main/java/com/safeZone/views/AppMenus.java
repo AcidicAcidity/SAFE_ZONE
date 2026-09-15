@@ -121,33 +121,37 @@ public class AppMenus {
         gui.addWindow(mainWindow);
     }
 
-    private Button makeFullWidthButton(String text, Runnable action) {
-        Button b = new Button(text, action);
-        b.setLayoutData(GridLayout.createLayoutData(
-            GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER,
-            true, false));
-        return b;
-    }
 
 
     private void showFilterWindow() {
         BasicWindow filterWindow = new BasicWindow("Поиск ячейки или платежа");
-        Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
+        filterWindow.setHints(Arrays.asList(Window.Hint.CENTERED, Window.Hint.FIXED_SIZE));
+        filterWindow.setFixedSize(new TerminalSize(50, 20));
+        Panel panel = new Panel(new GridLayout(1)
+            .setHorizontalSpacing(2)
+            .setVerticalSpacing(1)
+            .setLeftMarginSize(4)
+            .setRightMarginSize(4)
+            .setTopMarginSize(1)
+            .setBottomMarginSize(1));
 
-        Button bin = new Button("Ячейки", () -> {
-            filterWindow.close();
-            binMenu.binWindow();
-        });
-        Button payments = new Button("Платежи", () -> {
+        Label title = new Label("ВЫБЕРИТЕ СУЩНОСТЬ ДЛЯ ПОИСКА");
+        title.setLayoutData(GridLayout.createLayoutData(
+            GridLayout.Alignment.CENTER, GridLayout.Alignment.CENTER,
+            true, false));
+        panel.addComponent(title);
+        panel.addComponent(makeFullWidthButton("Платежи", () -> {
             filterWindow.close();
             paymentMenu.paymentWindow();
-        });
-        Button exit = new Button("Выход", () -> {
+        }));
+        panel.addComponent(makeFullWidthBmakeFullWidthButton("Ячейки", () -> {
+            binMenu.binWindow
+        }
+        Button exit = new Butto("Выход", () -> {
             filterWindow.close();
             showMainMenu();
         });
 
-        panel.addComponent(new Label("ВЫБЕРИТЕ СУЩНОСТЬ ДЛЯ ПОИСКА: "));
         panel.addComponent(bin);
         panel.addComponent(payments);
         panel.addComponent(new EmptySpace());
@@ -155,6 +159,14 @@ public class AppMenus {
 
         filterWindow.setComponent(panel);
         gui.addWindow(filterWindow);
+    }
+
+    private Button makeFullWidthButton(String text, Runnable action) {
+        Button b = new Button(text, action);
+        b.setLayoutData(GridLayout.createLayoutData(
+            GridLayout.Alignment.FILL, GridLayout.Alignment.CENTER,
+            true, false));
+        return b;
     }
 
 }
