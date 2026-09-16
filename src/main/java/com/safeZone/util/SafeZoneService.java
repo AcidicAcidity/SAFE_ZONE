@@ -42,7 +42,7 @@ public class SafeZoneService {
                 sql = "INSERT INTO users (login, password, status, role) " +
                       "VALUES (?, ?, 'active', 'client') RETURNING id";
                 args.add(p.get("login"));
-                args.add(p.get("password"));
+                args.add(PasswordUtil.hash(p.get("password").toString()));
             }
             case PAYMENT -> {
                 sql = "INSERT INTO payments (bin_id, user_id, priceathour, status, " +
@@ -88,10 +88,14 @@ public class SafeZoneService {
                 if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
                     return false;
                 }
-                sql = "SELECT 1 FROM users " +
-                      "WHERE login = ? AND password = ? AND status = 'active' LIMIT 1";
-                args.add(p.get("login"));
-                args.add(p.get("password"));
+                String selectSql = "SELECT password FROM users " +
+                                   "WHERE login = ? AND status = 'active' LIMIT 1";
+                List<Map<String, Object>> rows = db.getDataFromDB(
+                        selectSql, p.get("login"));
+                if (rows.isEmpty()) return false;
+                Object hash = rows.get(0).get("password");
+                return hash != null && PasswordUtil.verify(
+                        p.get("password").toString(), hash.toString());
             }
             case PAYMENT -> {
                 sql = "SELECT 1 FROM payments " +
