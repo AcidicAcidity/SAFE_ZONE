@@ -309,7 +309,11 @@ public class SafeZoneService {
                 stubUser
         );
     }
-
+    public User getUserById(int userId) throws SQLException {
+        String sql = "SELECT * FROM users WHERE id = ? LIMIT 1";
+        Map<String, Object> row = db.getSingleRow(sql, userId);
+        return row == null ? null : mapUserFromRow(row);
+    }
     // обёртки для егора
     public boolean createUser(String login, String password) throws SQLException {
         return createEntity(EntityType.USER, Map.of(
