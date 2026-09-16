@@ -1,18 +1,20 @@
 package com.safeZone.util;
 
-import com.safeZone.model.Bin;
-import com.safeZone.model.Payment;
-import com.safeZone.model.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.safeZone.model.Bin;
+import com.safeZone.model.Payment;
+import com.safeZone.model.User;
 
 public class SafeZoneService {
 
@@ -108,6 +110,80 @@ public class SafeZoneService {
         } catch (SQLException e) {
             log.error("checkEntity {}: {}", type, e.getMessage(), e);
             return false;
+        }
+    }
+    public boolean  ChangeEntity(EntityType type, int id, Map<String,Object> p) throws SQLException{
+        if (p == null || p.isEmpty()){
+            log.error("ChangeEntity: пустые params, type = {}, id = {}", type, id);
+            return false;
+        }
+        String table;
+        String idColumn;
+        Map<String, String>allowedFields = new LinkedHashMap<>();
+
+        switch (type) {
+            case USER -> {
+                table = "users";
+                idColumn = "id";
+                allowedFields.put("login", "login");
+                allowedFields.put("password", "password");
+                allowedFields.put("status", "status");
+                allowedFields.put("role", "role");
+            }
+            case BIN -> {
+                table = "bins";
+                idColumn = "bin_id";
+                allowedFields.put("PriceAtHour", "priceathour");
+                allowedFields.put("pos_x", "pos_x");
+                allowedFields.put("pos_y", "pos_y");
+                allowedFields.put("size", "size");
+                allowedFields.put("status", "status");
+            }
+            case PAYMENT -> {
+                table = "payments";
+                idColumn = "order_id";
+                allowedFields.put("Bin_ID", "bin_id");
+                allowedFields.put("User_ID", "user_id");
+                allowedFields.put("PriceAtHour", "priceathour");
+                allowedFields.put("status", "status");
+                allowedFields.put("end_rent_date", "end_rent_date");
+                allowedFields.put("rentTime", "\"rentTime\"");
+            }
+            default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
+        }
+
+        StringBuilder sql = new StringBuilder("UPDATE " + table + " SET ");
+        List<Object> args = new ArrayList<>();
+        boolean first = true;
+
+        for (Map.Entry<String, String> e : allowedFields.entrySet()) {
+            if (p.containsKey(e.getKey())) {
+                if (!first) sql.append(", ");
+                sql.append(e.getValue()).append(" = ?");
+                args.add(p.get(e.getKey()));
+                first = false;
+            }
+        }
+
+        if (first) {
+            log.warn("ChangeEntity {}: ни одно поле не совпало с допустимыми", type);
+            return false;
+        }
+
+        // у платежа update_at всегда проставляем NOW()
+        if (type == EntityType.PAYMENT) {
+            sql.append(", update_at = NOW()");
+        }
+
+        sql.append(" WHERE ").append(idColumn).append(" = ?");
+        args.add(id);
+
+        try {
+            int rows = db.executeUpdateData(sql.toString(), args.toArray());
+            return rows > 0;
+        } catch (SQLException e) {
+            log.error("ChangeEntity {} id={}: {}", type, id, e.getMessage(), e);
+            throw e;
         }
     }
     //Этот метод нужен для поиска Айди ячеек по x и y
@@ -207,6 +283,18 @@ public class SafeZoneService {
 
     public boolean isPaymentPaid(int orderId) throws SQLException {
         return checkEntity(EntityType.PAYMENT, Map.of("Order_ID", orderId));
+    }
+        public boolean ChangeUserStatus(int userId, String status) throws SQLException {
+        return ChangeEntity(EntityType.USER, userId, Map.of("status", status));
+    }
+
+    public boolean ChangeBinStatus(int binId, boolean free) throws SQLException {
+        return ChangeEntity(EntityType.BIN, binId,
+                Map.of("status", free ? "true" : "false"));
+    }
+
+    public boolean ChangePaymentStatus(int orderId, String status) throws SQLException {
+        return ChangeEntity(EntityType.PAYMENT, orderId, Map.of("status", status));
     }
     //Приватные хелперы
     private static boolean isBlank(Object o) {
