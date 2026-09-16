@@ -9,19 +9,21 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import org.slf4j.*;
 import java.sql.SQLException;
 import com.safeZone.util.DBHelper;
+import com.safeZone.util.SafeZoneService;
 
 public class AuthMenu {
     private static final Logger log = LoggerFactory.getLogger(AuthMenu.class);
     private DBHelper dbHelper;
     private AppMenus appMenus;
+    private ThemeGUI theme;
+    private SafeZoneService service;
     private static WindowBasedTextGUI gui;
 
-    public AuthMenu(DBHelper dbHelper){
+    public AuthMenu(DBHelper dbHelper, AppMenus appMenus, ThemeGUI theme, SafeZoneService service ){
         this.dbHelper = dbHelper;
-    }
-
-    public AuthMenu(AppMenus appMenus) {
         this.appMenus = appMenus;
+        this.theme = theme;
+        this.service = service;
     }
 
     public void start() throws Exception {
@@ -33,9 +35,9 @@ public class AuthMenu {
         MultiWindowTextGUI gui = new MultiWindowTextGUI(
             screen,
             new DefaultWindowManager(),
-            new EmtpySpace(TextColor.ANSI.BLACK)
+            new EmptySpace(TextColor.ANSI.BLACK)
         );
-        gui.setTheme(new ThemeGUI());
+        gui.setTheme(theme);
 
         showAuthMenu();
 
@@ -81,7 +83,7 @@ public class AuthMenu {
 
             if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
                 try {
-                    boolean isAuth = dbHelper.userAuth(username, password);
+                    boolean isAuth = service.authUser(username, password);
                     if ( isAuth == true) {
                         log.info("Authentication successful");
                         signInWindow.close();
@@ -133,7 +135,7 @@ public class AuthMenu {
             String password = passwordBox.getText();
             if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
                 try {
-                    dbHelper.addUser(username, password);
+                    service.createUser(username, password);
                 } catch (SQLException e) {
                     log.error("Failed to add user", e);
                 }

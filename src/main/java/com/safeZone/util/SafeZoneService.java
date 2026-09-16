@@ -75,7 +75,7 @@ public class SafeZoneService {
             throw e;
         }
     }
-    //А этот метод нужен для проверки всех этих сущностей  
+    //А этот метод нужен для проверки всех этих сущностей
     public boolean checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("checkEntity: params == null, type = {}", type);
@@ -206,7 +206,7 @@ public class SafeZoneService {
         Object id = rows.get(0).values().iterator().next();
         return ((Number) id).intValue();
     }
-    // так это уже будет поиск свободных ячеек под размер и время 
+    // так это уже будет поиск свободных ячеек под размер и время
     public Integer findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
         String sql = "SELECT b.bin_id FROM bins b " +
                      "WHERE b.size = ? AND b.status = 'true' " +
