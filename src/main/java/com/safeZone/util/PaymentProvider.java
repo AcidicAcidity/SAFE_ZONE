@@ -11,20 +11,22 @@ public class PaymentProvider {
     private static final Logger log = LoggerFactory.getLogger(PaymentProvider.class);
 
     private final DBHelper dbHelper;
+    private final SafeZoneService service;
 
-    public PaymentProvider(DBHelper dbHelper) {
+    public PaymentProvider(DBHelper dbHelper, SafeZoneService service) {
         this.dbHelper = dbHelper;
+        this.service = service;
     }
 
     public void createPayment(LocalDateTime rentTime, String size, String token) throws Exception {
         log.info("Создание платежа: " + rentTime + " h " + size + " size");
-        int binId = dbHelper.findFreeBin(size, rentTime);
+        int binId = service.findFreeBin(size, rentTime);
         if (binId <= 0) {
             log.error("Нет свободных ячеек для размера: " + size);
             throw new Exception("Нет свободных ячеек для размера: " + size);
         }
-        int paymentId = dbHelper.createPayment(rentTime, size, binId, token);
-        log.info("Платеж создан: " + paymentId);
+        // int paymentId = service.createPayment(binId, userId, priceAtHour,); // rentTime, size, binId, token
+        // log.info("Платеж создан: " + paymentId);
     }
 
     public String getPaymentStatus(int paymentId) {
