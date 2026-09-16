@@ -25,11 +25,12 @@ public class SafeZoneService {
     public SafeZoneService(DBHelper db) {
         this.db = db;
     }
+
     // createEntity нужен для осдание сущностей, это значит с помощью его мы делаем в таблице запросы на добовление юзеров, платежей и тд
-    public int createEntity(EntityType type, Map<String, Object> p) throws SQLException {
+    public boolean createEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("createEntity: params == null, type = {}", type);
-            return -1;
+            return false;
         }
         String sql;
         List<Object> args = new ArrayList<>();
@@ -37,7 +38,7 @@ public class SafeZoneService {
             case USER -> {
                 if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
                     log.warn("createEntity USER: пустой login или password");
-                    return -1;
+                    return false;
                 }
                 sql = "INSERT INTO users (login, password, status, role) " +
                       "VALUES (?, ?, 'active', 'client') RETURNING id";
@@ -65,7 +66,7 @@ public class SafeZoneService {
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
         }
         try {
-            return db.executeInsertReturning(sql, args.toArray());
+            return db.executeInsertReturning(sql, args.toArray()) > 0;
         } catch (SQLException e) {
             if ("23505".equals(e.getSQLState())) {
                 log.warn("createEntity {}: дубликат (unique violation)", type);
@@ -76,44 +77,39 @@ public class SafeZoneService {
         }
     }
     //А этот метод нужен для проверки всех этих сущностей
-    public boolean checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
+    @SuppressWarnings("unchecked")
+    public <T> T checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("checkEntity: params == null, type = {}", type);
-            return false;
+            return null;
         }
-        String sql;
-        List<Object> args = new ArrayList<>();
         switch (type) {
             case USER -> {
                 if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
-                    return false;
+                    return null;
                 }
-                String selectSql = "SELECT password FROM users " +
+                String selectSql = "SELECT * FROM users " +
                                    "WHERE login = ? AND status = 'active' LIMIT 1";
-                List<Map<String, Object>> rows = db.getDataFromDB(
-                        selectSql, p.get("login"));
-                if (rows.isEmpty()) return false;
-                Object hash = rows.get(0).get("password");
-                return hash != null && PasswordUtil.verify(
-                        p.get("password").toString(), hash.toString());
+                Map<String, Object> row = db.getSingleRow(selectSql, p.get("login"));
+                if (row == null) return null;
+                Object hash = row.get("password");
+                if (hash == null || !PasswordUtil.verify(
+                        p.get("password").toString(), hash.toString())) return null;
+                return (T) mapUserFromRow(row);
             }
             case PAYMENT -> {
-                sql = "SELECT 1 FROM payments " +
-                      "WHERE order_id = ? AND UPPER(status) = 'PAID' LIMIT 1";
-                args.add(p.get("Order_ID"));
+                String sql = "SELECT * FROM payments " +
+                             "WHERE order_id = ? AND UPPER(status) = 'PAID' LIMIT 1";
+                Map<String, Object> row = db.getSingleRow(sql, p.get("Order_ID"));
+                return row == null ? null : (T) mapPaymentFromRow(row);
             }
             case BIN -> {
-                sql = "SELECT 1 FROM bins WHERE size = ? AND status = 'true' LIMIT 1";
-                args.add(p.get("size"));
+                String sql = "SELECT * FROM bins " +
+                             "WHERE size = ? AND status = 'true' LIMIT 1";
+                Map<String, Object> row = db.getSingleRow(sql, p.get("size"));
+                return row == null ? null : (T) mapBinFromRow(row);
             }
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
-        }
-        try {
-            List<Map<String, Object>> rows = db.getDataFromDB(sql, args.toArray());
-            return !rows.isEmpty();
-        } catch (SQLException e) {
-            log.error("checkEntity {}: {}", type, e.getMessage(), e);
-            return false;
         }
     }
     // АРТЕМ ВОТ ЧТО ТЫ ХОТЕЛ МЕТОД ДЛЯ ИЗМИНЕНИЯ СУЩНОСТИ
@@ -165,7 +161,11 @@ public class SafeZoneService {
             if (p.containsKey(e.getKey())) {
                 if (!first) sql.append(", ");
                 sql.append(e.getValue()).append(" = ?");
-                args.add(p.get(e.getKey()));
+                Object val = p.get(e.getKey());
+                if ("password".equals(e.getKey()) && val != null) {
+                    val = PasswordUtil.hash(val.toString());
+                }
+                args.add(val);
                 first = false;
             }
         }
@@ -192,23 +192,25 @@ public class SafeZoneService {
         }
     }
     //Этот метод нужен для поиска Айди ячеек по x и y
-    public Integer findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
+    @SuppressWarnings("unchecked")
+    public <T> T findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
         String sql = switch (type) {
-            case BIN -> "SELECT bin_id FROM bins WHERE pos_x = ? AND pos_y = ? LIMIT 1";
-            case PAYMENT -> "SELECT p.order_id FROM payments p " +
+            case BIN -> "SELECT * FROM bins WHERE pos_x = ? AND pos_y = ? LIMIT 1";
+            case PAYMENT -> "SELECT p.* FROM payments p " +
                             "JOIN bins b ON p.bin_id = b.bin_id " +
                             "WHERE b.pos_x = ? AND b.pos_y = ? LIMIT 1";
             default -> throw new IllegalArgumentException(
                     "findIdByPosition только для BIN или PAYMENT, дано: " + type);
         };
-        List<Map<String, Object>> rows = db.getDataFromDB(sql, posX, posY);
-        if (rows.isEmpty()) return null;
-        Object id = rows.get(0).values().iterator().next();
-        return ((Number) id).intValue();
+        Map<String, Object> row = db.getSingleRow(sql, posX, posY);
+        if (row == null) return null;
+        return type == EntityType.BIN
+                ? (T) mapBinFromRow(row)
+                : (T) mapPaymentFromRow(row);
     }
     // так это уже будет поиск свободных ячеек под размер и время
-    public Integer findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
-        String sql = "SELECT b.bin_id FROM bins b " +
+    public Bin findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
+        String sql = "SELECT b.* FROM bins b " +
                      "WHERE b.size = ? AND b.status = 'true' " +
                      "AND NOT EXISTS ( " +
                      "  SELECT 1 FROM payments p " +
@@ -216,11 +218,9 @@ public class SafeZoneService {
                      "  AND UPPER(p.status) IN ('PENDING', 'PAID') " +
                      "  AND p.end_rent_date > ? " +
                      ") LIMIT 1";
-        List<Map<String, Object>> rows = db.getDataFromDB(sql, size,
+        Map<String, Object> row = db.getSingleRow(sql, size,
                 Timestamp.valueOf(endRentDate));
-        if (rows.isEmpty()) return null;
-        Object id = rows.get(0).values().iterator().next();
-        return ((Number) id).intValue();
+        return row == null ? null : mapBinFromRow(row);
     }
     //а тут уже наши любимые мапперы
     public User mapUser(ResultSet rs) throws SQLException {
@@ -265,18 +265,63 @@ public class SafeZoneService {
                 stubUser
         );
     }
+
+    // ============ Мапперы из Map (для checkEntity / findIdByPosition / findFreeBin) ============
+    public User mapUserFromRow(Map<String, Object> r) {
+        return new User(
+                ((Number) r.get("id")).intValue(),
+                (String) r.get("login"),
+                (String) r.get("password"),
+                User.Status.getStatus(statusToInt((String) r.get("status"))),
+                User.Role.getRole(roleToInt((String) r.get("role")))
+        );
+    }
+
+    public Bin mapBinFromRow(Map<String, Object> r) {
+        return new Bin(
+                ((Number) r.get("bin_id")).intValue(),
+                ((Number) r.get("priceathour")).intValue(),
+                ((Number) r.get("pos_x")).intValue(),
+                ((Number) r.get("pos_y")).intValue(),
+                (String) r.get("size"),
+                "true".equalsIgnoreCase((String) r.get("status"))
+        );
+    }
+
+    public Payment mapPaymentFromRow(Map<String, Object> r) {
+        Bin stubBin = new Bin(
+                ((Number) r.get("bin_id")).intValue(),
+                ((Number) r.get("priceathour")).intValue(),
+                0, 0, "unknown", false);
+        User stubUser = new User(
+                ((Number) r.get("user_id")).intValue(),
+                null, null, User.Status.ACTIVE, User.Role.CLIENT);
+        return new Payment(
+                ((Number) r.get("order_id")).intValue(),
+                stubBin,
+                stubBin,
+                Payment.StatusOrder.getStatusOrder(
+                        statusOrderToInt((String) r.get("status"))),
+                null,
+                toLdt(r.get("created_at")),
+                toLdt(r.get("update_at")),
+                toLdt(r.get("end_rent_date")),
+                stubUser
+        );
+    }
+
     // обёртки для егора
-    public int createUser(String login, String password) throws SQLException {
+    public boolean createUser(String login, String password) throws SQLException {
         return createEntity(EntityType.USER, Map.of(
                 "login", login, "password", password));
     }
 
-    public boolean authUser(String login, String password) throws SQLException {
+    public User authUser(String login, String password) throws SQLException {
         return checkEntity(EntityType.USER, Map.of(
                 "login", login, "password", password));
     }
 
-    public int createPayment(int binId, int userId, int priceAtHour,
+    public boolean createPayment(int binId, int userId, int priceAtHour,
                              LocalDateTime endRentDate, int rentTime) throws SQLException {
         return createEntity(EntityType.PAYMENT, Map.of(
                 "Bin_ID", binId,
@@ -286,10 +331,11 @@ public class SafeZoneService {
                 "rentTime", rentTime));
     }
 
-    public boolean isPaymentPaid(int orderId) throws SQLException {
+    public Payment getPaidPayment(int orderId) throws SQLException {
         return checkEntity(EntityType.PAYMENT, Map.of("Order_ID", orderId));
     }
-        public boolean ChangeUserStatus(int userId, String status) throws SQLException {
+
+    public boolean ChangeUserStatus(int userId, String status) throws SQLException {
         return ChangeEntity(EntityType.USER, userId, Map.of("status", status));
     }
 
@@ -301,9 +347,17 @@ public class SafeZoneService {
     public boolean ChangePaymentStatus(int orderId, String status) throws SQLException {
         return ChangeEntity(EntityType.PAYMENT, orderId, Map.of("status", status));
     }
+
     //Приватные хелперы
     private static boolean isBlank(Object o) {
         return o == null || o.toString().isBlank();
+    }
+
+    private static LocalDateTime toLdt(Object o) {
+        if (o == null) return null;
+        if (o instanceof Timestamp t) return t.toLocalDateTime();
+        if (o instanceof LocalDateTime l) return l;
+        return null;
     }
 
     private static int statusToInt(String s) {
