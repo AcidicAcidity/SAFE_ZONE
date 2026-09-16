@@ -84,4 +84,8 @@ public class DBHelper {
         }
         return -1;
     }
+        public java.util.Map<String, Object> getSingleRow(String sql, Object... params) throws SQLException {
+        java.util.List<java.util.Map<String, Object>> rows = getDataFromDB(sql, params);
+        return rows.isEmpty() ? null : rows.get(0);
+    }
 }
