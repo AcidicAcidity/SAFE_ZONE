@@ -26,8 +26,7 @@ public class SafeZoneService {
         this.db = db;
     }
 
-    // createEntity нужен для создания сущностей, это значит с помощью его мы делаем в таблице запросы на добовление юзеров, платежей и тд
-    // Возвращает true, если запись создана
+    // createEntity нужен для осдание сущностей, это значит с помощью его мы делаем в таблице запросы на добовление юзеров, платежей и тд
     public boolean createEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
             log.warn("createEntity: params == null, type = {}", type);
@@ -67,8 +66,7 @@ public class SafeZoneService {
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
         }
         try {
-            int id = db.executeInsertReturning(sql, args.toArray());
-            return id > 0;
+            return db.executeInsertReturning(sql, args.toArray()) > 0;
         } catch (SQLException e) {
             if ("23505".equals(e.getSQLState())) {
                 log.warn("createEntity {}: дубликат (unique violation)", type);
@@ -78,9 +76,7 @@ public class SafeZoneService {
             throw e;
         }
     }
-
-    // А этот метод нужен для проверки всех этих сущностей
-    // Возвращает объект (User/Bin/Payment) или null, если ничего не нашлось
+    //А этот метод нужен для проверки всех этих сущностей
     @SuppressWarnings("unchecked")
     public <T> T checkEntity(EntityType type, Map<String, Object> p) throws SQLException {
         if (p == null) {
@@ -89,10 +85,12 @@ public class SafeZoneService {
         }
         switch (type) {
             case USER -> {
-                if (isBlank(p.get("login")) || isBlank(p.get("password"))) return null;
-                String sql = "SELECT * FROM users " +
-                             "WHERE login = ? AND status = 'active' LIMIT 1";
-                Map<String, Object> row = db.getSingleRow(sql, p.get("login"));
+                if (isBlank(p.get("login")) || isBlank(p.get("password"))) {
+                    return null;
+                }
+                String selectSql = "SELECT * FROM users " +
+                                   "WHERE login = ? AND status = 'active' LIMIT 1";
+                Map<String, Object> row = db.getSingleRow(selectSql, p.get("login"));
                 if (row == null) return null;
                 Object hash = row.get("password");
                 if (hash == null || !PasswordUtil.verify(
@@ -114,17 +112,15 @@ public class SafeZoneService {
             default -> throw new IllegalArgumentException("Неизвестный тип: " + type);
         }
     }
-
-    // АРТЕМ ВОТ ЧТО ТЫ ХОТЕЛ, МЕТОД ДЛЯ ИЗМЕНЕНИЯ СУЩНОСТИ
-    // Возвращает true, если что-то обновилось
-    public boolean ChangeEntity(EntityType type, int id, Map<String, Object> p) throws SQLException {
-        if (p == null || p.isEmpty()) {
+    // АРТЕМ ВОТ ЧТО ТЫ ХОТЕЛ МЕТОД ДЛЯ ИЗМИНЕНИЯ СУЩНОСТИ
+    public boolean  ChangeEntity(EntityType type, int id, Map<String,Object> p) throws SQLException{
+        if (p == null || p.isEmpty()){
             log.error("ChangeEntity: пустые params, type = {}, id = {}", type, id);
             return false;
         }
         String table;
         String idColumn;
-        Map<String, String> allowedFields = new LinkedHashMap<>();
+        Map<String, String>allowedFields = new LinkedHashMap<>();
 
         switch (type) {
             case USER -> {
@@ -188,15 +184,14 @@ public class SafeZoneService {
         args.add(id);
 
         try {
-            return db.executeUpdateData(sql.toString(), args.toArray()) > 0;
+            int rows = db.executeUpdateData(sql.toString(), args.toArray());
+            return rows > 0;
         } catch (SQLException e) {
             log.error("ChangeEntity {} id={}: {}", type, id, e.getMessage(), e);
             throw e;
         }
     }
-
-    // Этот метод нужен для поиска Айди ячеек по x и y
-    // Возвращает Bin или Payment (или null)
+    //Этот метод нужен для поиска Айди ячеек по x и y
     @SuppressWarnings("unchecked")
     public <T> T findIdByPosition(EntityType type, int posX, int posY) throws SQLException {
         String sql = switch (type) {
@@ -213,9 +208,7 @@ public class SafeZoneService {
                 ? (T) mapBinFromRow(row)
                 : (T) mapPaymentFromRow(row);
     }
-
-    // Так это уже будет поиск свободных ячеек под размер и время
-    // Возвращает Bin или null
+    // так это уже будет поиск свободных ячеек под размер и время
     public Bin findFreeBin(String size, LocalDateTime endRentDate) throws SQLException {
         String sql = "SELECT b.* FROM bins b " +
                      "WHERE b.size = ? AND b.status = 'true' " +
@@ -225,55 +218,11 @@ public class SafeZoneService {
                      "  AND UPPER(p.status) IN ('PENDING', 'PAID') " +
                      "  AND p.end_rent_date > ? " +
                      ") LIMIT 1";
-        Map<String, Object> row = db.getSingleRow(sql, size, Timestamp.valueOf(endRentDate));
+        Map<String, Object> row = db.getSingleRow(sql, size,
+                Timestamp.valueOf(endRentDate));
         return row == null ? null : mapBinFromRow(row);
     }
-
-    // Мапперы из Map (для методов выше) 
-    public User mapUserFromRow(Map<String, Object> r) {
-        return new User(
-                ((Number) r.get("id")).intValue(),
-                (String) r.get("login"),
-                (String) r.get("password"),
-                User.Status.getStatus(statusToInt((String) r.get("status"))),
-                User.Role.getRole(roleToInt((String) r.get("role")))
-        );
-    }
-
-    public Bin mapBinFromRow(Map<String, Object> r) {
-        return new Bin(
-                ((Number) r.get("bin_id")).intValue(),
-                ((Number) r.get("priceathour")).intValue(),
-                ((Number) r.get("pos_x")).intValue(),
-                ((Number) r.get("pos_y")).intValue(),
-                (String) r.get("size"),
-                "true".equalsIgnoreCase((String) r.get("status"))
-        );
-    }
-
-    public Payment mapPaymentFromRow(Map<String, Object> r) {
-        Bin stubBin = new Bin(
-                ((Number) r.get("bin_id")).intValue(),
-                ((Number) r.get("priceathour")).intValue(),
-                0, 0, "unknown", false);
-        User stubUser = new User(
-                ((Number) r.get("user_id")).intValue(),
-                null, null, User.Status.ACTIVE, User.Role.CLIENT);
-        return new Payment(
-                ((Number) r.get("order_id")).intValue(),
-                stubBin,
-                stubBin,
-                Payment.StatusOrder.getStatusOrder(
-                        statusOrderToInt((String) r.get("status"))),
-                null,
-                toLdt(r.get("created_at")),
-                toLdt(r.get("update_at")),
-                toLdt(r.get("end_rent_date")),
-                stubUser
-        );
-    }
-
-    // А тут уже наши любимые мапперы из ResultSet
+    //а тут уже наши любимые мапперы
     public User mapUser(ResultSet rs) throws SQLException {
         return new User(
                 rs.getInt("id"),
@@ -317,7 +266,51 @@ public class SafeZoneService {
         );
     }
 
-    // Обёртки для Егора
+    // ============ Мапперы из Map (для checkEntity / findIdByPosition / findFreeBin) ============
+    public User mapUserFromRow(Map<String, Object> r) {
+        return new User(
+                ((Number) r.get("id")).intValue(),
+                (String) r.get("login"),
+                (String) r.get("password"),
+                User.Status.getStatus(statusToInt((String) r.get("status"))),
+                User.Role.getRole(roleToInt((String) r.get("role")))
+        );
+    }
+
+    public Bin mapBinFromRow(Map<String, Object> r) {
+        return new Bin(
+                ((Number) r.get("bin_id")).intValue(),
+                ((Number) r.get("priceathour")).intValue(),
+                ((Number) r.get("pos_x")).intValue(),
+                ((Number) r.get("pos_y")).intValue(),
+                (String) r.get("size"),
+                "true".equalsIgnoreCase((String) r.get("status"))
+        );
+    }
+
+    public Payment mapPaymentFromRow(Map<String, Object> r) {
+        Bin stubBin = new Bin(
+                ((Number) r.get("bin_id")).intValue(),
+                ((Number) r.get("priceathour")).intValue(),
+                0, 0, "unknown", false);
+        User stubUser = new User(
+                ((Number) r.get("user_id")).intValue(),
+                null, null, User.Status.ACTIVE, User.Role.CLIENT);
+        return new Payment(
+                ((Number) r.get("order_id")).intValue(),
+                stubBin,
+                stubBin,
+                Payment.StatusOrder.getStatusOrder(
+                        statusOrderToInt((String) r.get("status"))),
+                null,
+                toLdt(r.get("created_at")),
+                toLdt(r.get("update_at")),
+                toLdt(r.get("end_rent_date")),
+                stubUser
+        );
+    }
+
+    // обёртки для егора
     public boolean createUser(String login, String password) throws SQLException {
         return createEntity(EntityType.USER, Map.of(
                 "login", login, "password", password));
@@ -329,7 +322,7 @@ public class SafeZoneService {
     }
 
     public boolean createPayment(int binId, int userId, int priceAtHour,
-                                 LocalDateTime endRentDate, int rentTime) throws SQLException {
+                             LocalDateTime endRentDate, int rentTime) throws SQLException {
         return createEntity(EntityType.PAYMENT, Map.of(
                 "Bin_ID", binId,
                 "User_ID", userId,
@@ -355,7 +348,7 @@ public class SafeZoneService {
         return ChangeEntity(EntityType.PAYMENT, orderId, Map.of("status", status));
     }
 
-    // Приватные хелперы 
+    //Приватные хелперы
     private static boolean isBlank(Object o) {
         return o == null || o.toString().isBlank();
     }
