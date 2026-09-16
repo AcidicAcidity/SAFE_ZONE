@@ -110,7 +110,7 @@ public class AppMenus {
             mainWindow.close();
             createExport.getExportFile();
         }));
-        panel.addComponent(new EmptySpace(new TerminalSize(0, 1)))
+        panel.addComponent(new EmptySpace(new TerminalSize(0, 1)));
         panel.addComponent(makeFullWidthButton("Выход", () -> {
             mainWindow.close();
             System.exit(0);
@@ -145,8 +145,8 @@ public class AppMenus {
             paymentMenu.paymentWindow();
         }));
         panel.addComponent(makeFullWidthBmakeFullWidthButton("Ячейки", () -> {
-            binMenu.binWindow
-        }
+            binMenu.binWindow();
+        }));
         Button exit = new Butto("Выход", () -> {
             filterWindow.close();
             showMainMenu();
