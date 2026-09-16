@@ -112,6 +112,7 @@ public class SafeZoneService {
             return false;
         }
     }
+    // АРТЕМ ВОТ ЧТО ТЫ ХОТЕЛ МЕТОД ДЛЯ ИЗМИНЕНИЯ СУЩНОСТИ
     public boolean  ChangeEntity(EntityType type, int id, Map<String,Object> p) throws SQLException{
         if (p == null || p.isEmpty()){
             log.error("ChangeEntity: пустые params, type = {}, id = {}", type, id);
