@@ -144,18 +144,14 @@ public class AppMenus {
             filterWindow.close();
             paymentMenu.paymentWindow();
         }));
-        panel.addComponent(makeFullWidthBmakeFullWidthButton("Ячейки", () -> {
+        panel.addComponent(makeFullWidthButton("Ячейки", () -> {
             binMenu.binWindow();
         }));
-        Button exit = new Butto("Выход", () -> {
+        panel.addComponent(new EmptySpace());
+        panel.addComponent(makeFullWidthButton("Выход", () -> {
             filterWindow.close();
             showMainMenu();
-        });
-
-        panel.addComponent(bin);
-        panel.addComponent(payments);
-        panel.addComponent(new EmptySpace());
-        panel.addComponent(exit);
+        }));
 
         filterWindow.setComponent(panel);
         gui.addWindow(filterWindow);
