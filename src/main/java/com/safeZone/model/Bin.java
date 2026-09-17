@@ -18,4 +18,7 @@ public class Bin {
     }
 
     // геттеры и сеттеры дописать в случае надобности
+    public int getBin_ID() {
+        return Bin_ID;
+    }
 }
