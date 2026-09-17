@@ -15,14 +15,12 @@ public class AuthMenu {
     private static final Logger log = LoggerFactory.getLogger(AuthMenu.class);
     private DBHelper dbHelper;
     private AppMenus appMenus;
-    private ThemeGUI theme;
     private SafeZoneService service;
     private static WindowBasedTextGUI gui;
 
-    public AuthMenu(DBHelper dbHelper, AppMenus appMenus, ThemeGUI theme, SafeZoneService service ){
+    public AuthMenu(DBHelper dbHelper, AppMenus appMenus, SafeZoneService service ){
         this.dbHelper = dbHelper;
         this.appMenus = appMenus;
-        this.theme = theme;
         this.service = service;
     }
 
@@ -37,7 +35,8 @@ public class AuthMenu {
             new DefaultWindowManager(),
             new EmptySpace(TextColor.ANSI.BLACK)
         );
-        gui.setTheme(theme);
+        gui.setTheme(ThemeGUI.build());
+
 
         showAuthMenu();
 
