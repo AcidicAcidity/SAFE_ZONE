@@ -30,7 +30,7 @@ public class PaymentProvider {
     }
 
     public String getPaymentStatus(int paymentId) {
-        return dbHelper.getPaymentStatus(paymentId);
+        return service.isPaymentPaid(paymentId);
     }
 
     public List<Map<String, Object>> getPayments(LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime endRentDate, int binId, int userId) {
