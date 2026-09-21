@@ -27,7 +27,9 @@ psql -U postgres -d postgres
 
 psql -U postgres -d safe_zone -f .\SAFE_ZONE.sql
 
-К корне проекта нужно созда config.json по данному образцу:
+```
+
+В корне проекта нужно создать config.json по данному образцу:
 
 `config.json`
 {
@@ -39,7 +41,7 @@ psql -U postgres -d safe_zone -f .\SAFE_ZONE.sql
   "token": "placement_tokens"
 }
 
-Сборка и запуск
+### Сборка и запуск
 
 mvn clean compile -U
 mvn clean package
