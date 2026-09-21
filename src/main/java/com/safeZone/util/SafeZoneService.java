@@ -320,7 +320,7 @@ public class SafeZoneService {
                 "login", login, "password", password));
     }
 
-    public boolean  authUser(String login, String password) throws SQLException {
+    public User authUser(String login, String password) throws SQLException {
         return checkEntity(EntityType.USER, Map.of(
                 "login", login, "password", password));
     }

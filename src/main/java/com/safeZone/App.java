@@ -1,16 +1,22 @@
 package com.safeZone;
 
-import org.slf4j.*;
-import java.io.IOException;
 import java.io.File;
-import java.time.format.DateTimeFormatter;
+import java.io.IOException;
 import java.time.Instant;
-import com.safeZone.util.*;
-import com.safeZone.views.*;
+import java.time.format.DateTimeFormatter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.safeZone.util.DBHelper;
+import com.safeZone.util.DBUtils;
+import com.safeZone.util.JsonData;
+import com.safeZone.util.JsonReader;
+import com.safeZone.views.AuthMenu;
 
 
 public class App {
-    public static void main(){
+    public static void main(String[] args){
 
         String timestamp = DateTimeFormatter.ISO_INSTANT.format(Instant.now())
             .replace(":", "-")
