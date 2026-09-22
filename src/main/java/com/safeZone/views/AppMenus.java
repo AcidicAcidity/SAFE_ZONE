@@ -44,15 +44,10 @@ public class AppMenus {
         this.statsMenu = statsMenu;
     }
 
-    public void start() throws Exception {
-        Screen screen = new DefaultTerminalFactory().createScreen();
-        screen.startScreen();
+    public void start(WindowBasedTextGUI gui) throws Exception {
 
-        gui = new MultiWindowTextGUI(screen);
-
+        this.gui = gui;
         showMainMenu();
-
-        screen.stopScreen();
     }
 
     public static boolean containsDigit(String str) {

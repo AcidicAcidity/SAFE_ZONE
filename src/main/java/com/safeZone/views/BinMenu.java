@@ -5,6 +5,8 @@ import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
+
+import java.awt.image.DataBufferShort;
 import java.util.*;
 
 import com.safeZone.util.DBHelper;
@@ -14,14 +16,19 @@ import org.slf4j.LoggerFactory;
 
 public class BinMenu {
     private static final Logger log = LoggerFactory.getLogger(BinMenu.class);
-    private static WindowBasedTextGUI gui;
+    private final WindowBasedTextGUI gui;
     private DBHelper dbHelper;
     private AppMenus appMenus;
 
-    public BinMenu(DBHelper dbHelper, AppMenus appMenus) {
-        this.dbHelper = dbHelper;
+    public BinMenu(WindowBasedTextGUI gui, DBHelper dbhelper ) {
+        this.gui = gui;
+        this.dbHelper = dbhelper;
+    }
+
+    public void setAppMenus(AppMenus appMenus) {
         this.appMenus = appMenus;
     }
+
 
     public void binWindow() {
         BasicWindow binList = new BasicWindow("Список ячеек");

@@ -18,12 +18,6 @@ public class AuthMenu {
     private SafeZoneService service;
     private static WindowBasedTextGUI gui;
 
-    public AuthMenu(DBHelper dbHelper, AppMenus appMenus, SafeZoneService service ){
-        this.dbHelper = dbHelper;
-        this.appMenus = appMenus;
-        this.service = service;
-    }
-
     public void start() throws Exception {
         Screen screen = new DefaultTerminalFactory()
                 .setTerminalEmulatorTitle("SafeZone")
@@ -36,7 +30,6 @@ public class AuthMenu {
             new EmptySpace(TextColor.ANSI.BLACK)
         );
         gui.setTheme(ThemeGUI.build());
-
 
         showAuthMenu();
 
@@ -95,7 +88,7 @@ public class AuthMenu {
                     log.error("Failed to authenticate", e);
                 }
                 try {
-                        appMenus.start();
+                        appMenus.start(gui);
                     } catch (Exception e) {
                         log.error("Failed to start app menus", e);
                     }
@@ -140,7 +133,7 @@ public class AuthMenu {
                 }
                 signUpWindow.close();
                 try {
-                    appMenus.start();
+                    appMenus.start(gui);
                 } catch (Exception e) {
                     log.error("Failed to start app menus", e);
                 }

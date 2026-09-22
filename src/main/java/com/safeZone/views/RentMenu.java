@@ -18,12 +18,15 @@ import org.slf4j.LoggerFactory;
 public class RentMenu {
 
     private static final Logger log = LoggerFactory.getLogger(RentMenu.class);
-    private static WindowBasedTextGUI gui;
     private PaymentProvider paymentProvider;
 
+    private final WindowBasedTextGUI gui;
     private AppMenus appMenus;
 
-    public RentMenu(AppMenus appMenus) {
+    public RentMenu(WindowBasedTextGUI gui) {
+        this.gui = gui;
+    }
+    public void setAppMenus(AppMenus appMenus) {
         this.appMenus = appMenus;
     }
 
