@@ -30,9 +30,8 @@ public class AuthMenu {
     private SafeZoneService service;
     private static WindowBasedTextGUI gui;
 
-<<<<<<< HEAD
-=======
-    
+
+
     public AuthMenu(DBHelper dbHelper){
         this.dbHelper = dbHelper;
         // TODO Нигде не используется, но мешало сборке
@@ -41,7 +40,6 @@ public class AuthMenu {
         // this.service = service;
     }
 
->>>>>>> 1489b1ba92f7a2e035106db2949726bfb582b111
     public void start() throws Exception {
         Screen screen = new DefaultTerminalFactory()
                 .setTerminalEmulatorTitle("SafeZone")
