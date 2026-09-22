@@ -20,7 +20,7 @@ public class PaymentProvider {
 
     public void createPayment(LocalDateTime rentTime, String size, String token) throws Exception {
         log.info("Создание платежа: " + rentTime + " h " + size + " size");
-        int binId = service.findFreeBin(size, rentTime);
+        int binId = service.findFreeBin(size, rentTime).getBin_ID();
         if (binId <= 0) {
             log.error("Нет свободных ячеек для размера: " + size);
             throw new Exception("Нет свободных ячеек для размера: " + size);
@@ -28,12 +28,13 @@ public class PaymentProvider {
         // int paymentId = service.createPayment(binId, userId, priceAtHour,); // rentTime, size, binId, token
         // log.info("Платеж создан: " + paymentId);
     }
+    // TODO Implement isPaymentPaid method
+    // public String getPaymentStatus(int paymentId) {
+    //     return service.isPaymentPaid(paymentId);
+    // }
 
-    public String getPaymentStatus(int paymentId) {
-        return service.isPaymentPaid(paymentId);
-    }
-
-    public List<Map<String, Object>> getPayments(LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime endRentDate, int binId, int userId) {
-        return dbHelper.getPayments(rentTime, createdAt, endRentDate, binId, userId);
-    }
+    //TODO Implement getPayments method
+    // public List<Map<String, Object>> getPayments(LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime endRentDate, int binId, int userId) {
+    //     return dbHelper.getPayments(rentTime, createdAt, endRentDate, binId, userId);
+    // }
 }
