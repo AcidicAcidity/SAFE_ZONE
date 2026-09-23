@@ -6,38 +6,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.gui2.BasicWindow;
-import com.googlecode.lanterna.gui2.Button;
-import com.googlecode.lanterna.gui2.DefaultWindowManager;
-import com.googlecode.lanterna.gui2.Direction;
-import com.googlecode.lanterna.gui2.EmptySpace;
-import com.googlecode.lanterna.gui2.Label;
-import com.googlecode.lanterna.gui2.LinearLayout;
-import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
-import com.googlecode.lanterna.gui2.Panel;
-import com.googlecode.lanterna.gui2.TextBox;
-import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.safeZone.util.DBHelper;
-import com.safeZone.util.SafeZoneService;
+import com.safeZone.util.*;
 
 public class AuthMenu {
     private static final Logger log = LoggerFactory.getLogger(AuthMenu.class);
-    private DBHelper dbHelper;
-    private AppMenus appMenus;
-    private SafeZoneService service;
-    private static WindowBasedTextGUI gui;
+    private final DBHelper dbHelper;
+    private final SafeZoneService service;
+    private final AppMenus appMenus;
+    private WindowBasedTextGUI gui;
 
-
-
-    public AuthMenu(DBHelper dbHelper){
+    public AuthMenu(DBHelper dbHelper, SafeZoneService service, AppMenus appMenus) {
         this.dbHelper = dbHelper;
-        // TODO Нигде не используется, но мешало сборке
-        // Потом раскомментим если понадобится
-        // this.appMenus = appMenus;
-        // this.service = service;
+        this.service = service;
+        this.appMenus = appMenus;
     }
 
     public void start() throws Exception {
@@ -63,12 +48,12 @@ public class AuthMenu {
         Panel panel = new Panel(new LinearLayout(Direction.VERTICAL));
 
         Button signIn = new Button("Войти", () -> {
-            showSignInMenu();
             mainWindow.close();
+            showSignInMenu();
         });
         Button signUp = new Button("Зарегистрироваться", () -> {
-            showSignUpMenu();
             mainWindow.close();
+            showSignUpMenu();
         });
         Button exit = new Button("Выход", () -> {
             mainWindow.close();
@@ -76,6 +61,7 @@ public class AuthMenu {
         });
 
         panel.addComponent(new Label("SAFE ZONE"));
+        panel.addComponent(new EmptySpace());
         panel.addComponent(signIn);
         panel.addComponent(signUp);
         panel.addComponent(new EmptySpace());
@@ -95,27 +81,27 @@ public class AuthMenu {
             String username = usernameBox.getText();
             String password = passwordBox.getText();
 
-            if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
-                try {
-                    boolean isAuth = service.authUser(username, password) != null;
-                    if ( isAuth == true) {
-                        log.info("Authentication successful");
-                        signInWindow.close();
-
-                    } else {
-                        log.error("Invalid username or password");
-                        MessageDialog.showMessageDialog(gui, "Error", "Invalid username or password");
-                    }
-                } catch (SQLException e) {
-                    log.error("Failed to authenticate", e);
-                }
-                try {
-                        appMenus.start(gui);
-                    } catch (Exception e) {
-                        log.error("Failed to start app menus", e);
-                    }
-            } else {
+            if (username.isEmpty() || password.isEmpty()) {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
+                return;
+            }
+
+            boolean isAuth;
+            try {
+                isAuth = service.authUser(username, password) != null;
+            } catch (SQLException e) {
+                log.error("Failed to authenticate", e);
+                MessageDialog.showMessageDialog(gui, "Ошибка", "Не удалось выполнить вход");
+                return;
+            }
+
+            if (isAuth) {
+                log.info("Authentication successful");
+                signInWindow.close();
+                appMenus.start(gui);
+            } else {
+                log.error("Invalid username or password");
+                MessageDialog.showMessageDialog(gui, "Error", "Invalid username or password");
             }
         });
         Button signUpButton = new Button("Зарегистрироваться", () -> {
@@ -147,21 +133,22 @@ public class AuthMenu {
         Button signUpButton = new Button("Зарегистрироваться", () -> {
             String username = usernameBox.getText();
             String password = passwordBox.getText();
-            if ((username.isEmpty() == false) && (password.isEmpty() == false)) {
-                try {
-                    service.createUser(username, password);
-                } catch (SQLException e) {
-                    log.error("Failed to add user", e);
-                }
-                signUpWindow.close();
-                try {
-                    appMenus.start(gui);
-                } catch (Exception e) {
-                    log.error("Failed to start app menus", e);
-                }
-            } else {
+
+            if (username.isEmpty() || password.isEmpty()) {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");
+                return;
             }
+
+            try {
+                service.createUser(username, password);
+            } catch (SQLException e) {
+                log.error("Failed to add user", e);
+                MessageDialog.showMessageDialog(gui, "Ошибка", "Не удалось зарегистрировать пользователя");
+                return;
+            }
+
+            signUpWindow.close();
+            appMenus.start(gui);
         });
         Button exit = new Button("Выход", () -> {
             signUpWindow.close();

@@ -8,11 +8,9 @@ import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.safeZone.util.DBHelper;
-import com.safeZone.util.DBUtils;
-import com.safeZone.util.JsonData;
-import com.safeZone.util.JsonReader;
-import com.safeZone.views.AuthMenu;
+import com.safeZone.util.*;
+
+import com.safeZone.views.*;
 
 
 public class App {
@@ -63,8 +61,19 @@ public class App {
             log.error("FAILED CONNECTION DB");
         }
 
+        SafeZoneService service = new SafeZoneService(dbHelper);
+        PaymentProvider paymentProvider = new PaymentProvider(dbHelper, service);
+        RentMenu rentMenu = new RentMenu(paymentProvider);
+        BinMenu binMenu = new BinMenu(service);
+        PaymentMenu paymentMenu = new PaymentMenu(service);
+        UserMenu userMenu = new UserMenu(service);
+        StatsMenu statsMenu = new StatsMenu(service);
+        createExport export = new createExport();
+
+        AppMenus appMenus = new AppMenus(dbUtils, export, rentMenu, binMenu, paymentMenu, userMenu, statsMenu);
+
         try {
-            new AuthMenu(dbHelper).start();
+            new AuthMenu(dbHelper, service, appMenus).start();
         } catch (Exception e) {
             log.error("GUI START ERROR: ", e);
         }

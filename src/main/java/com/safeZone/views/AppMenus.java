@@ -3,32 +3,25 @@ package com.safeZone.views;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
-import com.googlecode.lanterna.screen.Screen;
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.graphics.ThemeDefinition;
-import com.googlecode.lanterna.gui2.Window.Hint;
 
-import com.safeZone.util.DBHelper;
 import com.safeZone.util.createExport;
+import com.safeZone.util.DBUtils;
 
-import java.util.*;
+import java.util.Arrays;
 
-import com.googlecode.lanterna.gui2.table.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.*;
+import java.io.File;
 
 public class AppMenus {
 
     private static final Logger log = LoggerFactory.getLogger(AppMenus.class);
-    private DBHelper dbHelper;
-    private createExport createExport;
-    private static WindowBasedTextGUI gui;
+
+    private final DBUtils dbUtils;
+    private final createExport export;
+
+    private WindowBasedTextGUI gui;
 
     private final RentMenu rentMenu;
     private final BinMenu binMenu;
@@ -36,18 +29,36 @@ public class AppMenus {
     private final UserMenu userMenu;
     private final StatsMenu statsMenu;
 
-    public AppMenus(RentMenu rentMenu, BinMenu binMenu, PaymentMenu paymentMenu, UserMenu userMenu, StatsMenu statsMenu) {
+    public AppMenus(DBUtils dbUtils, createExport export,
+                     RentMenu rentMenu, BinMenu binMenu, PaymentMenu paymentMenu,
+                     UserMenu userMenu, StatsMenu statsMenu) {
+        this.dbUtils = dbUtils;
+        this.export = export;
         this.rentMenu = rentMenu;
         this.binMenu = binMenu;
         this.paymentMenu = paymentMenu;
         this.userMenu = userMenu;
         this.statsMenu = statsMenu;
+
+        rentMenu.setAppMenus(this);
+        binMenu.setAppMenus(this);
+        paymentMenu.setAppMenus(this);
+        userMenu.setAppMenus(this);
+        statsMenu.setAppMenus(this);
     }
 
-    public void start(WindowBasedTextGUI gui) throws Exception {
-
+    public void start(WindowBasedTextGUI gui) {
         this.gui = gui;
+        rentMenu.setGui(gui);
+        binMenu.setGui(gui);
+        paymentMenu.setGui(gui);
+        userMenu.setGui(gui);
+        statsMenu.setGui(gui);
         showMainMenu();
+    }
+
+    public WindowBasedTextGUI getGui() {
+        return gui;
     }
 
     public static boolean containsDigit(String str) {
@@ -102,8 +113,14 @@ public class AppMenus {
             statsMenu.showStats();
         }));
         panel.addComponent(makeFullWidthButton("Экспорт данных", () -> {
-            mainWindow.close();
-            createExport.getExportFile();
+            try {
+                String pathToCSV = System.getProperty("user.home") + File.separator + "Downloads";
+                createExport.exportDatabase(dbUtils.getConnection(), pathToCSV);
+                MessageDialog.showMessageDialog(gui, "Экспорт", "Данные успешно экспортированы\n, ");
+            } catch (Exception e) {
+                log.error("Ошибка экспорта", e);
+                MessageDialog.showMessageDialog(gui, "Ошибка", "Не удалось экспортировать данные");
+            }
         }));
         panel.addComponent(new EmptySpace(new TerminalSize(0, 1)));
         panel.addComponent(makeFullWidthButton("Выход", () -> {
@@ -111,12 +128,9 @@ public class AppMenus {
             System.exit(0);
         }));
 
-
         mainWindow.setComponent(panel);
         gui.addWindow(mainWindow);
     }
-
-
 
     private void showFilterWindow() {
         BasicWindow filterWindow = new BasicWindow("Поиск ячейки или платежа");
@@ -140,6 +154,7 @@ public class AppMenus {
             paymentMenu.paymentWindow();
         }));
         panel.addComponent(makeFullWidthButton("Ячейки", () -> {
+            filterWindow.close();
             binMenu.binWindow();
         }));
         panel.addComponent(new EmptySpace());
@@ -159,5 +174,4 @@ public class AppMenus {
             true, false));
         return b;
     }
-
 }

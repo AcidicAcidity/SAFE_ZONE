@@ -22,14 +22,6 @@ public class createExport {
     private static final char DELIMITER = ';';
     private static final String LINE_SEPARATOR = "\r\n";
 
-    /**
-     * Экспорт всей БД одним файлом: находит все таблицы через метаданные соединения,
-     * выгружает каждую в свой CSV и упаковывает всё в один zip-архив по указанному пути.
-     * Возвращает итоговый путь к файлу
-     *
-     * Пример использования:
-     * String resultPath = CsvExporter.exportDatabase(connection, "C:/export/safezone_dump");
-    **/
     public static String exportDatabase(Connection connection, String outputPath) throws SQLException, IOException {
         Path zipPath = Path.of(outputPath);
         if (!zipPath.toString().toLowerCase().endsWith(".zip")) {
