@@ -6,11 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.lanterna.TextColor;
+
 import com.googlecode.lanterna.gui2.*;
 import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.safeZone.util.*;
+
 
 public class AuthMenu {
     private static final Logger log = LoggerFactory.getLogger(AuthMenu.class);
@@ -18,6 +20,7 @@ public class AuthMenu {
     private final SafeZoneService service;
     private final AppMenus appMenus;
     private WindowBasedTextGUI gui;
+
 
     public AuthMenu(DBHelper dbHelper, SafeZoneService service, AppMenus appMenus) {
         this.dbHelper = dbHelper;
@@ -80,6 +83,7 @@ public class AuthMenu {
         Button signInButton = new Button("Войти", () -> {
             String username = usernameBox.getText();
             String password = passwordBox.getText();
+
 
             if (username.isEmpty() || password.isEmpty()) {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "Username и Password не могут быть пустыми");

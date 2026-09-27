@@ -5,15 +5,15 @@ import org.postgresql.util.LruCache.CreateAction;
 
 public class Payment {
 
-    private int Order_ID;
-    private Bin Bin_ID;
-    private Bin PriceAtHour;
+    private int orderId;
+    private Bin binId;
+    private Bin priceAtHour;
     private StatusOrder status;
     private LocalDateTime rentTime; //На сколько часов арендован
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
-    private LocalDateTime end_rent_date;
-    private User User_ID;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private LocalDateTime endRentDate;
+    private User userId;
 
     public enum StatusOrder {
         PENDING(1, "ОЖИДАЕТ ОПЛАТЫ"),
@@ -40,16 +40,16 @@ public class Payment {
             } throw new IllegalArgumentException("Неизвестный код статуса заказа:" + code);
         }
     }
-    public Payment(int Order_ID, Bin Bin_ID, Bin PriceAtHour, StatusOrder status, LocalDateTime rentTime, LocalDateTime created_at, LocalDateTime updated_at, LocalDateTime end_rent_date, User User_ID) {
-        this.Order_ID = Order_ID;
-        this.Bin_ID = Bin_ID;
-        this.PriceAtHour = PriceAtHour;
+    public Payment(int orderId, Bin binId, Bin priceAtHour, StatusOrder status, LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime endRentDate, User userId) {
+        this.orderId = orderId;
+        this.binId = binId;
+        this.priceAtHour = priceAtHour;
         this.status = status;
         this.rentTime = rentTime;
-        this.created_at = created_at;
-        this.updated_at = updated_at;
-        this.end_rent_date = end_rent_date;
-        this.User_ID = User_ID;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.endRentDate = endRentDate;
+        this.userId = userId;
     }
 
     // геттеры и сеттеры дописать в случае надобности

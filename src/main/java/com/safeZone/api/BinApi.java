@@ -67,7 +67,7 @@ public class BinApi implements HttpHandler {
                         if (freeBin != null) {
                             // !!! ВАЖНО: Проверь, как называется геттер ID в твоем классе Bin.
                             // Если он называется getBinId(), то поменяй .getId() на .getBinId()
-                            response = "{\"id\":" + freeBin.getBin_ID() + "}";
+                            response = "{\"id\":" + freeBin.getBinId() + "}";
                         } else {
                             response = "{\"id\":null}";
                         }
