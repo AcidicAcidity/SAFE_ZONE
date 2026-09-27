@@ -1,24 +1,24 @@
 package com.safeZone.model;
 public class Bin {
 
-    private int Bin_ID;
-    private int PriceAtHour;
-    private int pos_x;
-    private int pos_y;
+    private int binId;
+    private int priceAtHour;
+    private int posX;
+    private int posY;
     private String size;
     private boolean status;
 
-    public Bin(int Bin_ID, int PriceAtHour, int pos_x, int pos_y, String size, boolean status) {
-        this.Bin_ID = Bin_ID;
-        this.PriceAtHour = PriceAtHour;
-        this.pos_x = pos_x;
-        this.pos_y = pos_y;
+    public Bin(int binId, int priceAtHour, int posX, int posY, String size, boolean status) {
+        this.binId = binId;
+        this.priceAtHour = priceAtHour;
+        this.posX = posX;
+        this.posY = posY;
         this.size = size;
         this.status = status;
     }
 
     // геттеры и сеттеры дописать в случае надобности
-    public int getBin_ID() {
-        return Bin_ID;
+    public int getBinId() {
+        return binId;
     }
 }

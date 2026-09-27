@@ -1,11 +1,9 @@
 package com.safeZone.util;
 
-import com.safeZone.model.Payment;
 import java.time.LocalDateTime;
-import org.slf4j.*;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PaymentProvider {
     private static final Logger log = LoggerFactory.getLogger(PaymentProvider.class);
@@ -20,7 +18,7 @@ public class PaymentProvider {
 
     public void createPayment(LocalDateTime rentTime, String size, String token) throws Exception {
         log.info("Создание платежа: " + rentTime + " h " + size + " size");
-        int binId = service.findFreeBin(size, rentTime).getBin_ID();
+        int binId = service.findFreeBin(size, rentTime).getBinId();
         if (binId <= 0) {
             log.error("Нет свободных ячеек для размера: " + size);
             throw new Exception("Нет свободных ячеек для размера: " + size);

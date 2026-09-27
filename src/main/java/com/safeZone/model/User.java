@@ -1,6 +1,6 @@
 package com.safeZone.model;
 public class User {
-    private int User_ID;
+    private final int userId;
     private String login;
     private String password;
     private Status status;
@@ -9,7 +9,7 @@ public class User {
     public enum Status {
         ACTIVE(1, "АКТИВЕН"),
         BLOCKED(2, "ЗАБЛОКИРОВАН"),
-        DELITED(3, "УДАЛЕН");
+        DELETED(3, "УДАЛЕН");
 
         private final int code;
         private final String description;
@@ -51,8 +51,8 @@ public class User {
         }
 
     }
-    public User(int User_ID, String login, String password, Status status, Role role) {
-        this.User_ID = User_ID;
+    public User(int userId, String login, String password, Status status, Role role) {
+        this.userId = userId;
         this.login = login;
         this.password = password;
         this.status = status;
