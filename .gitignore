@@ -9,3 +9,5 @@ target/*
 .idea/
 dependency-reduced-pom.xml
 logs/*
+**/preview/*
+**/.DS_Store

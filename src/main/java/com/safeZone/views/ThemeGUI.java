@@ -14,7 +14,7 @@ public class ThemeGUI {
     public static Theme build() {
         Properties properties = new Properties();
         try (InputStream stream = ThemeGUI.class.getResourceAsStream(THEME_RESOURCE)) {
-            if (stream == null ) {
+            if (stream == null) {
                 throw new IllegalStateException("Файл темы не найден: " + THEME_RESOURCE);
             }
             properties.load(stream);

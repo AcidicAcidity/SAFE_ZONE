@@ -19,6 +19,8 @@ public class PaymentProvider {
     public void createPayment(LocalDateTime rentTime, String size, String token) throws Exception {
         log.info("Создание платежа: " + rentTime + " h " + size + " size");
         int binId = service.findFreeBin(size, rentTime).getBinId();
+
+
         if (binId <= 0) {
             log.error("Нет свободных ячеек для размера: " + size);
             throw new Exception("Нет свободных ячеек для размера: " + size);
