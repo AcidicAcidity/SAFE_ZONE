@@ -21,4 +21,21 @@ public class Bin {
     public int getBinId() {
         return binId;
     }
+
+    public int getPriceAtHour() {
+        return priceAtHour;
+    }
+
+    public String getBinSize() {
+        return size;
+    }
+
+    public String getBinStatus() {
+        return status ? "Open" : "Closed";
+    }
+
+    public String getBinNumber() {
+        String number = "" + posX + posY;
+        return number;
+    }
 }

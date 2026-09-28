@@ -114,10 +114,10 @@ public class BinMenu {
         }
         for (Bin bin : bins) {
             tableModel.addRow(
-                String.valueOf(bin.getId()),
-                bin.getSize(),
-                String.valueOf(bin.getNumber()),
-                bin.getStatus()
+                String.valueOf(bin.getBinId()),
+                bin.getBinSize(),
+                bin.getBinNumber(),
+                bin.getBinStatus()
             );
         }
     }
