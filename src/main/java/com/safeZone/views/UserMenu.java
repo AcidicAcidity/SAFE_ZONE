@@ -6,7 +6,7 @@ import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.gui2.table.Table;
 import com.googlecode.lanterna.gui2.table.TableModel;
 
-import com.safeZone.model.UserRecord;
+import com.safeZone.model.User;
 import com.safeZone.util.SafeZoneService;
 
 import java.sql.SQLException;
@@ -63,7 +63,7 @@ public class UserMenu {
                 String role = normalizedOrNull(userRole.getText(), "Пользователь/Администратор");
                 String sort = normalizedOrNull(sortResult.getText(), "DESC/ASC");
 
-                List<UserRecord> users = service.findUsers(id, status, role, sort); //ДОБАВИТЬ
+                List<User> users = service.findUsers(id, status, role, sort); //ДОБАВИТЬ
                 fillUserTable(tableModel, users);
             } catch (NumberFormatException e) {
                 MessageDialog.showMessageDialog(gui, "Ошибка", "ID должен быть числом");
@@ -97,7 +97,7 @@ public class UserMenu {
         gui.addWindow(userWindow);
     }
 
-    private List<UserRecord> loadAllUsers() {
+    private List<User> loadAllUsers() {
         try {
             return service.getAllUsers(); //ДОБАВИТЬ
         } catch (SQLException e) {
@@ -107,13 +107,13 @@ public class UserMenu {
         }
     }
 
-    private void fillUserTable(TableModel<String> tableModel, List<UserRecord> users) {
+    private void fillUserTable(TableModel<String> tableModel, List<User> users) {
         while (tableModel.getRowCount() > 0) {
             tableModel.removeRow(0);
         }
-        for (UserRecord u : users) {
+        for (User u : users) {
             tableModel.addRow(
-                String.valueOf(u.getId()),
+                String.valueOf(u.getUserId()),
                 u.getUsername(),
                 u.getStatus(),
                 u.getRole()

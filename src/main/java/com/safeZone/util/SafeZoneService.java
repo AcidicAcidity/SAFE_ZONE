@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.safeZone.model.Bin;
 import com.safeZone.model.Payment;
 import com.safeZone.model.User;
+import com.safeZone.model.BinStats;
 
 public class SafeZoneService {
 
@@ -350,6 +351,170 @@ public class SafeZoneService {
 
     public boolean ChangePaymentStatus(int orderId, String status) throws SQLException {
         return ChangeEntity(EntityType.PAYMENT, orderId, Map.of("status", status));
+    }
+
+    public List<Payment> getAllPayments() throws SQLException {
+        String sql = "SELECT * FROM payments ORDER BY order_id";
+        List<Map<String, Object>> rows = db.getDataFromDB(sql);
+        List<Payment> payments = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            payments.add(mapPaymentFromRow(row));
+        }
+        return payments;
+    }
+
+    public List<Payment> findPayments(Integer binId, Integer ownerId, Integer amount, Integer rentTime, String status) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM payments WHERE 1=1");
+        List<Object> args = new ArrayList<>();
+
+        if (binId != null && !binId.toString().isBlank()) {
+            sql.append(" AND bin_id = ?");
+            args.add(binId);
+        }
+
+        if (ownerId != null && !ownerId.toString().isBlank()) {
+            sql.append(" AND owner_id = ?");
+            args.add(ownerId);
+        }
+
+        if (amount != null && !amount.toString().isBlank()) {
+            sql.append(" AND amount = ?");
+            args.add(amount);
+        }
+
+        if (rentTime != null && !rentTime.toString().isBlank()) {
+            sql.append(" AND rent_time = ?");
+            args.add(rentTime);
+        }
+
+        if (status != null && !status.toString().isBlank()) {
+            sql.append(" AND status = ?");
+            args.add(status);
+        }
+
+        sql.append(" ORDER BY order_id");
+
+        List<Map<String, Object>> rows = db.getDataFromDB(sql.toString(), args.toArray());
+        List<Payment> payments = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            payments.add(mapPaymentFromRow(row));
+        }
+        return payments;
+    }
+
+    public List<Bin> getAllBins() throws SQLException {
+        String sql = "SELECT * FROM bins ORDER BY bin_id";
+        List<Map<String, Object>> rows = db.getDataFromDB(sql);
+        List<Bin> bins = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            bins.add(mapBinFromRow(row));
+        }
+        return bins;
+    }
+
+    public List<Bin> findBins(String size, Integer number, String status, String sort) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM bins WHERE 1=1");
+        List<Object> args = new ArrayList<>();
+
+        if (size != null && !size.isBlank()) {
+            sql.append(" AND size = ?");
+            args.add(size);
+        }
+
+        if (number != null) {
+            sql.append(" AND number = ?");
+            args.add(number);
+        }
+
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND status = ?");
+            args.add(status);
+        }
+
+        String dir = "DESC";
+        if (sort != null && sort.isBlank()) {
+            String s = sort.trim().toUpperCase();
+            if ("ASC".equals(s) || "DESC".equals(s)) {
+                dir = s;
+            }
+        }
+
+        sql.append(" ORDER BY bin_id ").append(dir);
+
+        List<Map<String, Object>> rows = db.getDataFromDB(sql.toString(), args.toArray());
+        List<Bin> bins = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            bins.add(mapBinFromRow(row));
+        }
+        return bins;
+    }
+
+    public List<BinStats> getBinStats() throws SQLException {
+        String sql = "SELECT b.bin_id, b.status, " +
+                "COUNT(p.order_id) AS rent_count, " +
+                "COALESCE(MAX(p.\"rentTime\"), 0) AS longest_rest" +
+                "FROM bins b " +
+                "LEFT JOIN payments p ON b.bin_id = p.bin_id " +
+                "GROUP BY b.bin_id, b.status" +
+                "ORDER BY b.bin_id";
+
+        List<Map<String, Object>> rows = db.getDataFromDB(sql);
+        List<BinStats> stats = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            stats.add(new BinStats(
+                ((Number) row.get("bin_id")).intValue(),
+                (String) row.get("status"),
+                ((Number) row.get("rent_count")).intValue(),
+                ((Number) row.get("longest_rest")).intValue()
+            ));
+        }
+        return stats;
+    }
+
+    public List<User> getAllUsers() throws SQLException {
+        String sql = "SELECT * FROM users";
+        List<Map<String, Object>> rows = db.getDataFromDB(sql);
+        List<User> users = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            users.add(mapUserFromRow(row));
+        }
+        return users;
+    }
+
+    public List<User> findUsers(Integer id, String status, String role, String sort) throws SQLException {
+        StringBuilder sql = new StringBuilder("SELECT * FROM users WHERE 1=1");
+        List<Object> args = new ArrayList<>();
+        if (id != null && id > 0) {
+            sql.append(" AND id = ?");
+            args.add(id);
+        }
+
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND status = ?");
+            args.add(status);
+        }
+
+        if (role != null && !role.isBlank()) {
+            sql.append(" AND role = ?");
+            args.add(role);
+        }
+
+        String dir = "DESC";
+        if (sort != null && !sort.isBlank()) {
+            String s = sort.trim().toUpperCase();
+            if ("ASC".equals(s) || "DESC".equals(s)) {
+                dir = s;
+            }
+        }
+
+        sql.append(" ORDER BY id " + dir);
+
+        List<Map<String, Object>> rows = db.getDataFromDB(sql.toString(), args.toArray());
+        List<User> users = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            users.add(mapUserFromRow(row));
+        }
+        return users;
     }
 
     //Приватные хелперы

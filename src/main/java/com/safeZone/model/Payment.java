@@ -9,7 +9,7 @@ public class Payment {
     private Bin binId;
     private Bin priceAtHour;
     private StatusOrder status;
-    private LocalDateTime rentTime; //На сколько часов арендован
+    private Integer rentTime; //На сколько часов арендован
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime endRentDate;
@@ -31,7 +31,7 @@ public class Payment {
 
         // Методы для получения кода и расшифровки статуса заказа
         public int getCodeStatusOrder() { return code; }
-        public String getDescriptionOrder() { return description; }
+        public String getTextStatusOrder() { return description; }
 
         // Метод для получения enum статуса по коду пользователя из БД
         public static StatusOrder getStatusOrder(int code) {
@@ -39,8 +39,10 @@ public class Payment {
                 if (s.getCodeStatusOrder() == code) { return s; }
             } throw new IllegalArgumentException("Неизвестный код статуса заказа:" + code);
         }
+
     }
-    public Payment(int orderId, Bin binId, Bin priceAtHour, StatusOrder status, LocalDateTime rentTime, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime endRentDate, User userId) {
+
+    public Payment(int orderId, Bin binId, Bin priceAtHour, StatusOrder status, Integer rentTime, LocalDateTime createdAt, LocalDateTime updatedAt, LocalDateTime endRentDate, User userId) {
         this.orderId = orderId;
         this.binId = binId;
         this.priceAtHour = priceAtHour;
@@ -52,5 +54,45 @@ public class Payment {
         this.userId = userId;
     }
 
-    // геттеры и сеттеры дописать в случае надобности
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public Integer getBinId() {
+        return binId.getBinId();
+    }
+
+    public Integer getPriceAtHour() {
+        return binId.getPriceAtHour();
+    }
+
+    public String getStatus() {
+        return status.getTextStatusOrder();
+    }
+
+    public Integer getRentTime() {
+        return rentTime;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public LocalDateTime getEndRentDate() {
+        return endRentDate;
+    }
+
+    public User getOwnerId() {
+        return userId;
+    }
+
+    public Integer getAmount() {
+        int amount = getPriceAtHour() * rentTime;
+        return amount;
+    }
+
 }

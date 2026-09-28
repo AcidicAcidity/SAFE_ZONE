@@ -1,4 +1,5 @@
 package com.safeZone.model;
+
 public class User {
     private final int userId;
     private String login;
@@ -57,5 +58,21 @@ public class User {
         this.password = password;
         this.status = status;
         this.role = role;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public String getUsername() {
+        return login;
+    }
+
+    public String getStatus() {
+        return status.getDescriptionStatus();
+    }
+
+    public String getRole() {
+        return role.getDescriptionStatus();
     }
 }

@@ -32,6 +32,7 @@ public class DBHelper {
         }
     }
 
+    // ВАЖНО! Этот метод возвращает список строк из ответа БД. Используем вместо getSingleRow, если нам нужен не один результат, а несколько
     public List<Map<String, Object>> getDataFromDB(String sql, Object... params) throws SQLException {
         List<Map<String, Object>> rows = new ArrayList<>();
 

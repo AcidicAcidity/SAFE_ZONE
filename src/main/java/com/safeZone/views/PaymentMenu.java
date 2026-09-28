@@ -65,7 +65,7 @@ public class PaymentMenu {
                 Integer rentTimeValue = parseIntOrNull(rentTime.getText(), "Rent Time");
                 String statusValue = normalizedOrNull(status.getText(), "Status");
 
-                List<Payment> payments = service.findPayments( //ДОДЕЛАТЬ
+                List<Payment> payments = service.findPayments(
                     binIdValue, ownerIdValue, amountValue, rentTimeValue, statusValue);
                 fillPaymentTable(tableModel, payments);
             } catch (NumberFormatException e) {
@@ -102,7 +102,7 @@ public class PaymentMenu {
 
     private List<Payment> loadAllPayments() {
         try {
-            return service.getAllPayments(); //ДОБАВИТЬ
+            return service.getAllPayments();
         } catch (SQLException e) {
             log.error("Не удалось загрузить список платежей", e);
             MessageDialog.showMessageDialog(gui, "Ошибка", "Не удалось загрузить платежи");
@@ -116,7 +116,7 @@ public class PaymentMenu {
         }
         for (Payment p : payments) {
             tableModel.addRow(
-                String.valueOf(p.getId()),
+                String.valueOf(p.getOrderId()),
                 String.valueOf(p.getBinId()),
                 String.valueOf(p.getOwnerId()),
                 String.valueOf(p.getAmount()),
