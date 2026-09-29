@@ -42,10 +42,7 @@ public class ConsoleMenu {
                 );
     }
 
-    /**
-     * @return true  - пользователь вышел из аккаунта
-     * @return false - приложение нужно завершить
-     */
+    // @return true  - пользователь вышел из аккаунта @return false - приложение нужно завершить
     public boolean start(User currentUser) {
 
         boolean running = true;
