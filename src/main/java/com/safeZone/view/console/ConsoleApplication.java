@@ -1,7 +1,17 @@
 package com.safezone.view.console;
 
+import com.safezone.application.service.PasswordService;
 import com.safezone.application.service.SafeZoneService;
 import com.safezone.domain.model.User;
+import com.safezone.infrastructure.data.DBHelper;
+import com.safezone.infrastructure.data.repository.CellRepository;
+import com.safezone.infrastructure.data.repository.PostgresCellRepository;
+import com.safezone.infrastructure.data.repository.PostgresRentalRepository;
+import com.safezone.infrastructure.data.repository.PostgresUserRepository;
+import com.safezone.infrastructure.data.repository.PostgresWarehouseRepository;
+import com.safezone.infrastructure.data.repository.RentalRepository;
+import com.safezone.infrastructure.data.repository.UserRepository;
+import com.safezone.infrastructure.data.repository.WarehouseRepository;
 
 import java.util.Scanner;
 
@@ -15,28 +25,134 @@ public class ConsoleApplication {
 
     public ConsoleApplication() {
 
-        service = new SafeZoneService();
+        /*
+         * =========================================
+         * DATABASE
+         * =========================================
+         */
+
+        DBHelper dbHelper = new DBHelper();
+
+
+        /*
+         * =========================================
+         * REPOSITORIES
+         * =========================================
+         */
+
+        UserRepository userRepository =
+                new PostgresUserRepository(
+                        dbHelper
+                );
+
+        WarehouseRepository warehouseRepository =
+                new PostgresWarehouseRepository(
+                        dbHelper
+                );
+
+        CellRepository cellRepository =
+                new PostgresCellRepository(
+                        dbHelper
+                );
+
+        RentalRepository rentalRepository =
+                new PostgresRentalRepository(
+                        dbHelper
+                );
+
+
+        /*
+         * =========================================
+         * SERVICES
+         * =========================================
+         */
+
+        PasswordService passwordService =
+                new PasswordService();
+
+        service =
+                new SafeZoneService(
+                        userRepository,
+                        warehouseRepository,
+                        cellRepository,
+                        rentalRepository,
+                        passwordService
+                );
+
+
+        /*
+         * =========================================
+         * CONSOLE
+         * =========================================
+         */
+
         scanner = new Scanner(System.in);
 
-        loginView = new LoginView(
-                service,
-                scanner
-        );
+        loginView =
+                new LoginView(
+                        service,
+                        scanner
+                );
 
-        consoleMenu = new ConsoleMenu(
-                service,
-                scanner
-        );
+        consoleMenu =
+                new ConsoleMenu(
+                        service,
+                        scanner
+                );
     }
 
     public void start() {
 
-        User user = loginView.login();
+        boolean applicationRunning = true;
 
-        if (user == null) {
-            return;
+        while (applicationRunning) {
+
+            /*
+             * Показываем экран авторизации.
+             *
+             * Если пользователь выбрал "0",
+             * login() вернёт null.
+             */
+            User currentUser =
+                    loginView.login();
+
+            if (currentUser == null) {
+                applicationRunning = false;
+                continue;
+            }
+
+
+            /*
+             * Пользователь успешно вошёл.
+             *
+             * ConsoleMenu.start() возвращает:
+             *
+             * true  -> пользователь вышел
+             *         из аккаунта;
+             *
+             * false -> приложение нужно завершить.
+             */
+            boolean logout =
+                    consoleMenu.start(
+                            currentUser
+                    );
+
+            if (!logout) {
+                applicationRunning = false;
+            }
         }
 
-        consoleMenu.start(user);
+        scanner.close();
+
+        System.out.println();
+        System.out.println(
+                "================================="
+        );
+        System.out.println(
+                "       SAFEZONE завершён"
+        );
+        System.out.println(
+                "================================="
+        );
     }
 }

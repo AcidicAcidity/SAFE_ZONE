@@ -1,8 +1,0 @@
-{
-  "host": "localhost",
-  "port": 5432,
-  "database": "safe_zone",
-  "password": "0405",
-  "user": "acidicacidity",
-  "token": "rftdmdxT5YuS"
-}

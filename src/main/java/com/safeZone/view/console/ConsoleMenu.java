@@ -23,20 +23,30 @@ public class ConsoleMenu {
         this.service = service;
         this.input = new ConsoleInput(scanner);
 
-        warehouseView =
+        this.warehouseView =
                 new WarehouseView(service);
 
-        cellView =
+        this.cellView =
                 new CellView(service);
 
-        rentalView =
-                new RentalView(service, scanner);
+        this.rentalView =
+                new RentalView(
+                        service,
+                        scanner
+                );
 
-        adminView =
-                new AdminView(service, scanner);
+        this.adminView =
+                new AdminView(
+                        service,
+                        scanner
+                );
     }
 
-    public void start(User currentUser) {
+    /**
+     * @return true  - пользователь вышел из аккаунта
+     * @return false - приложение нужно завершить
+     */
+    public boolean start(User currentUser) {
 
         boolean running = true;
 
@@ -55,35 +65,47 @@ public class ConsoleMenu {
             switch (choice) {
 
                 case "1":
+
                     clearScreen();
 
                     warehouseView.showWarehouses();
 
                     input.waitForEnter();
+
                     break;
 
                 case "2":
+
                     clearScreen();
 
                     cellView.showAllCells();
 
                     input.waitForEnter();
+
                     break;
 
                 case "3":
+
                     clearScreen();
 
-                    rentalView.rentCell(currentUser);
+                    rentalView.rentCell(
+                            currentUser
+                    );
 
                     input.waitForEnter();
+
                     break;
 
                 case "4":
+
                     clearScreen();
 
-                    rentalView.showMyRentals(currentUser);
+                    rentalView.showMyRentals(
+                            currentUser
+                    );
 
                     input.waitForEnter();
+
                     break;
 
                 case "5":
@@ -93,30 +115,53 @@ public class ConsoleMenu {
                         clearScreen();
 
                         adminView.start();
+
+                    } else {
+
+                        System.out.println();
+                        System.out.println(
+                                "Недостаточно прав."
+                        );
+
+                        input.waitForEnter();
                     }
 
                     break;
 
+                case "6":
+
+                    clearScreen();
+
+                    System.out.println(
+                            "Вы вышли из аккаунта."
+                    );
+
+                    input.waitForEnter();
+
+                    return true;
+
                 case "0":
-                    running = false;
-                    break;
+
+                    clearScreen();
+
+                    System.out.println(
+                            "Завершение программы."
+                    );
+
+                    return false;
 
                 default:
+
                     System.out.println();
                     System.out.println(
                             "Неверный пункт меню."
                     );
 
                     input.waitForEnter();
-                    break;
             }
         }
 
-        clearScreen();
-
-        System.out.println(
-                "Работа приложения завершена."
-        );
+        return false;
     }
 
     private void showHeader(User user) {
@@ -134,13 +179,23 @@ public class ConsoleMenu {
         );
 
         System.out.println(
-                "Пользователь: "
-                        + user.getLogin()
+                "Пользователь: " +
+                        user.getLogin()
         );
 
         System.out.println(
-                "Роль: "
-                        + user.getRole()
+                "ID: " +
+                        user.getUserId()
+        );
+
+        System.out.println(
+                "Роль: " +
+                        user.getRole()
+        );
+
+        System.out.println(
+                "Статус: " +
+                        user.getStatus()
         );
 
         System.out.println(
@@ -174,7 +229,11 @@ public class ConsoleMenu {
         }
 
         System.out.println(
-                "0. Выход"
+                "6. Выйти из аккаунта"
+        );
+
+        System.out.println(
+                "0. Завершить программу"
         );
 
         System.out.println(

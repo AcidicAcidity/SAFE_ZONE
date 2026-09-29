@@ -1,5 +1,10 @@
 package com.safezone.application.service;
 
+import com.safezone.application.exception.AuthenticationException;
+import com.safezone.application.exception.CellUnavailableException;
+import com.safezone.application.exception.UserAlreadyExistsException;
+import com.safezone.application.exception.UserNotFoundException;
+import com.safezone.domain.enums.CellSize;
 import com.safezone.domain.enums.CellStatus;
 import com.safezone.domain.enums.RentalStatus;
 import com.safezone.domain.enums.Role;
@@ -8,222 +13,286 @@ import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 import com.safezone.domain.model.Warehouse;
-import com.safezone.infrastructure.data.TestDataInitializer;
-import com.safezone.domain.enums.CellSize;
+import com.safezone.infrastructure.data.repository.CellRepository;
+import com.safezone.infrastructure.data.repository.RentalRepository;
+import com.safezone.infrastructure.data.repository.UserRepository;
+import com.safezone.infrastructure.data.repository.WarehouseRepository;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SafeZoneService {
 
-    private final List<User> users = new ArrayList<>();
-    private final List<Warehouse> warehouses = new ArrayList<>();
-    private final List<Cell> cells = new ArrayList<>();
-    private final List<Rental> rentals = new ArrayList<>();
+    private final UserRepository userRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final CellRepository cellRepository;
+    private final RentalRepository rentalRepository;
+    private final PasswordService passwordService;
 
-    public SafeZoneService() {
-        initializeTestData();
+    public SafeZoneService(
+            UserRepository userRepository,
+            WarehouseRepository warehouseRepository,
+            CellRepository cellRepository,
+            RentalRepository rentalRepository,
+            PasswordService passwordService) {
+
+        this.userRepository = userRepository;
+        this.warehouseRepository = warehouseRepository;
+        this.cellRepository = cellRepository;
+        this.rentalRepository = rentalRepository;
+        this.passwordService = passwordService;
     }
 
-    private void initializeTestData() {
-        TestDataInitializer initializer =
-                new TestDataInitializer();
+    // =========================================================
+    // AUTHORIZATION
+    // =========================================================
 
-        initializer.initializeWarehouses(warehouses);
+    public User login(String login, String password) {
 
-        for (Warehouse warehouse : warehouses) {
-            initializer.initializeCells(
-                    cells,
-                    warehouse.getWarehouseId()
+        try {
+            User user = userRepository.findByLogin(login);
+
+            if (user == null) {
+                throw new AuthenticationException(
+                        "Неверный логин или пароль."
+                );
+            }
+
+            if (user.getStatus() == UserStatus.BLOCKED) {
+                throw new AuthenticationException(
+                        "Ваш аккаунт заблокирован."
+                );
+            }
+
+            if (user.getStatus() == UserStatus.DELETED) {
+                throw new AuthenticationException(
+                        "Ваш аккаунт удалён."
+                );
+            }
+
+            if (!passwordService.matches(
+                    password,
+                    user.getPasswordHash())) {
+
+                throw new AuthenticationException(
+                        "Неверный логин или пароль."
+                );
+            }
+
+            return user;
+
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+
+            throw new IllegalStateException(
+                    "Ошибка при обращении к базе данных: "
+                            + e.getMessage(),
+                    e
+            );
+        }
+    }
+
+    public User register(String login, String password) {
+
+        validateRegistration(login, password);
+
+        try {
+            if (userRepository.existsByLogin(login)) {
+                throw new UserAlreadyExistsException(
+                        "Пользователь с таким логином уже существует."
+                );
+            }
+
+            String passwordHash =
+                    passwordService.hash(password);
+
+            int userId =
+                    userRepository.create(
+                            login,
+                            passwordHash
+                    );
+
+            return userRepository.findById(userId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Ошибка регистрации.",
+                    e
+            );
+        }
+    }
+
+    private void validateRegistration(
+            String login,
+            String password) {
+
+        if (login == null || login.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Логин не может быть пустым."
             );
         }
 
-        initializeUsers();
-    }
-
-    private void initializeUsers() {
-        users.add(new User(
-                1,
-                "admin",
-                "admin",
-                UserStatus.ACTIVE,
-                Role.ADMIN
-        ));
-
-        users.add(new User(
-                2,
-                "client",
-                "client",
-                UserStatus.ACTIVE,
-                Role.CLIENT
-        ));
-    }
-
-    public List<Warehouse> getWarehouses() {
-        return warehouses;
-    }
-
-    public List<Cell> getCells() {
-        return cells;
-    }
-
-    public List<Rental> getRentals() {
-        return rentals;
-    }
-
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public List<Cell> getAvailableCells() {
-        return cells.stream()
-                .filter(cell ->
-                        cell.getStatus() == CellStatus.AVAILABLE
-                )
-                .collect(Collectors.toList());
-    }
-
-    public User findUserByLogin(String login) {
-        for (User user : users) {
-            if (user.getLogin().equals(login)) {
-                return user;
-            }
+        if (login.length() < 3) {
+            throw new IllegalArgumentException(
+                    "Логин должен содержать минимум 3 символа."
+            );
         }
 
-        return null;
+        if (password == null || password.length() < 4) {
+            throw new IllegalArgumentException(
+                    "Пароль должен содержать минимум 4 символа."
+            );
+        }
+    }
+
+    // =========================================================
+    // USERS
+    // =========================================================
+
+    public List<User> getUsers() {
+
+        try {
+            return userRepository.findAll();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить пользователей.",
+                    e
+            );
+        }
     }
 
     public User findUserById(int userId) {
-        for (User user : users) {
-            if (user.getUserId() == userId) {
-                return user;
-            }
-        }
 
-        return null;
+        try {
+            return userRepository.findById(userId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Ошибка поиска пользователя.",
+                    e
+            );
+        }
     }
 
     public void blockUser(int userId) {
-
-        User user = findUserById(userId);
-
-        if (user == null) {
-            throw new IllegalArgumentException("Пользователь не найден");
-        }
-
-        user.setStatus(UserStatus.BLOCKED);
+        updateUserStatus(
+                userId,
+                UserStatus.BLOCKED
+        );
     }
 
     public void unblockUser(int userId) {
-
-        User user = findUserById(userId);
-
-        if (user == null) {
-            throw new IllegalArgumentException(
-                    "Пользователь не найден."
-            );
-        }
-
-        user.setStatus(UserStatus.ACTIVE);
+        updateUserStatus(
+                userId,
+                UserStatus.ACTIVE
+        );
     }
 
     public void deleteUser(int userId) {
-
-        User user = findUserById(userId);
-
-        if (user == null) {
-            throw new IllegalArgumentException(
-                    "Пользователь не найден."
-            );
-        }
-
-        user.setStatus(UserStatus.DELETED);
-    }
-
-    public int getCellRentalCount(int cellId) {
-
-        int count = 0;
-
-        for (Rental rental : rentals) {
-
-            if (rental.getCellId() == cellId) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    public Rental findRentalById(int rentalId) {
-
-        for (Rental rental : rentals) {
-
-            if (rental.getRentalId() == rentalId) {
-                return rental;
-            }
-        }
-
-        return null;
-    }
-
-    public void cancelRental(int rentalId) {
-
-        Rental rental = findRentalById(rentalId);
-
-        if (rental == null) {
-            throw new IllegalArgumentException(
-                    "Бронь не найдена."
-            );
-        }
-
-        if (rental.getStatus() != RentalStatus.ACTIVE) {
-            throw new IllegalStateException(
-                    "Эту бронь нельзя отменить."
-            );
-        }
-
-        rental.setStatus(RentalStatus.CANCELLED);
-
-        Cell cell = findCellById(
-                rental.getCellId()
+        updateUserStatus(
+                userId,
+                UserStatus.DELETED
         );
+    }
 
-        if (cell != null) {
-            cell.setStatus(CellStatus.AVAILABLE);
+    private void updateUserStatus(
+            int userId,
+            UserStatus status) {
+
+        try {
+            User user =
+                    userRepository.findById(userId);
+
+            if (user == null) {
+                throw new UserNotFoundException(
+                        "Пользователь не найден."
+                );
+            }
+
+            userRepository.updateStatus(
+                    userId,
+                    status.name()
+            );
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Ошибка изменения пользователя.",
+                    e
+            );
+        }
+    }
+
+    // =========================================================
+    // WAREHOUSES
+    // =========================================================
+
+    public List<Warehouse> getWarehouses() {
+
+        try {
+            return warehouseRepository.findAll();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить склады.",
+                    e
+            );
+        }
+    }
+
+    // =========================================================
+    // CELLS
+    // =========================================================
+
+    public List<Cell> getCells() {
+
+        try {
+            return cellRepository.findAll();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить ячейки.",
+                    e
+            );
         }
     }
 
     public Cell findCellById(int cellId) {
-        for (Cell cell : cells) {
-            if (cell.getCellId() == cellId) {
-                return cell;
-            }
-        }
 
-        return null;
-    }
+        try {
+            return cellRepository.findById(cellId);
 
-    public List<Rental> getUserRentals(int userId) {
-        return rentals.stream()
-                .filter(rental ->
-                        rental.getUserId() == userId
-                )
-                .collect(Collectors.toList());
-    }
-
-    public Rental rentSpecificCell(
-            int userId,
-            int cellId,
-            LocalDateTime startDateTime,
-            int hours) {
-
-        if (hours < 1 || hours > 24) {
-            throw new IllegalArgumentException(
-                    "Продолжительность аренды должна быть от 1 до 24 часов."
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Ошибка поиска ячейки.",
+                    e
             );
         }
+    }
+
+    public List<Cell> getAvailableCells() {
+
+        try {
+            return cellRepository.findAvailable();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить свободные ячейки.",
+                    e
+            );
+        }
+    }
+
+    /**
+     * Проверяет, свободна ли ячейка
+     * в указанный интервал времени.
+     */
+    public boolean isCellAvailable(
+            int cellId,
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime) {
 
         Cell cell = findCellById(cellId);
 
@@ -233,29 +302,129 @@ public class SafeZoneService {
             );
         }
 
-        if (cell.getStatus() != CellStatus.AVAILABLE) {
+        if (cell.getStatus() == CellStatus.UNAVAILABLE) {
+            return false;
+        }
+
+        try {
+            return !rentalRepository.hasOverlappingRental(
+                    cellId,
+                    startDateTime,
+                    endDateTime
+            );
+
+        } catch (SQLException e) {
             throw new IllegalStateException(
-                    "Эта ячейка недоступна для аренды."
+                    "Не удалось проверить доступность ячейки.",
+                    e
+            );
+        }
+    }
+
+    public List<Cell> getAvailableCells(
+            LocalDateTime startDateTime,
+            LocalDateTime endDateTime) {
+
+        try {
+            return cellRepository.findAvailable();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить ячейки.",
+                    e
+            );
+        }
+    }
+
+    // =========================================================
+    // RENTALS
+    // =========================================================
+
+    public List<Rental> getRentals() {
+
+        try {
+            return rentalRepository.findAll();
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить аренды.",
+                    e
+            );
+        }
+    }
+
+    public List<Rental> getUserRentals(int userId) {
+
+        try {
+            return rentalRepository.findByUserId(userId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить аренды пользователя.",
+                    e
+            );
+        }
+    }
+
+    public Rental findRentalById(int rentalId) {
+
+        try {
+            return rentalRepository.findById(rentalId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Ошибка поиска аренды.",
+                    e
+            );
+        }
+    }
+
+    public Rental rentSpecificCell(
+            int userId,
+            int cellId,
+            LocalDateTime startDateTime,
+            int hours) {
+
+        validateRentalHours(hours);
+
+        LocalDateTime endDateTime =
+                startDateTime.plusHours(hours);
+
+        Cell cell = findCellById(cellId);
+
+        if (cell == null) {
+            throw new IllegalArgumentException(
+                    "Ячейка не найдена."
             );
         }
 
-        LocalDateTime endDateTime = startDateTime.plusHours(hours);
-
-        int rentalId = rentals.size() + 1;
-
-        Rental rental = new Rental(
-                rentalId,
-                userId,
+        if (!isCellAvailable(
                 cellId,
                 startDateTime,
-                endDateTime,
-                RentalStatus.ACTIVE
-        );
+                endDateTime)) {
 
-        rentals.add(rental);
-        cell.setStatus(CellStatus.RENTED);
+            throw new CellUnavailableException(
+                    "Эта ячейка занята в выбранный период."
+            );
+        }
 
-        return rental;
+        try {
+            int rentalId =
+                    rentalRepository.create(
+                            userId,
+                            cellId,
+                            startDateTime,
+                            endDateTime
+                    );
+
+            return rentalRepository.findById(rentalId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось создать аренду.",
+                    e
+            );
+        }
     }
 
     public Rental rentCellBySize(
@@ -264,46 +433,122 @@ public class SafeZoneService {
             LocalDateTime startDateTime,
             int hours) {
 
-        if (hours < 1 || hours > 24) {
-            throw new IllegalArgumentException(
-                    "Продолжительность аренды должна быть от 1 до 24 часов."
-            );
-        }
-
-        Cell selectedCell = null;
-
-        for (Cell cell : cells) {
-            if (cell.getSize() == size
-                    && cell.getStatus() == CellStatus.AVAILABLE) {
-
-                selectedCell = cell;
-                break;
-            }
-        }
-
-        if (selectedCell == null) {
-            throw new IllegalStateException(
-                    "Свободной ячейки выбранного размера нет."
-            );
-        }
+        validateRentalHours(hours);
 
         LocalDateTime endDateTime =
                 startDateTime.plusHours(hours);
 
-        int rentalId = rentals.size() + 1;
+        List<Cell> cells = getCells();
 
-        Rental rental = new Rental(
-                rentalId,
-                userId,
-                selectedCell.getCellId(),
-                startDateTime,
-                endDateTime,
-                RentalStatus.ACTIVE
+        for (Cell cell : cells) {
+
+            if (cell.getSize() != size) {
+                continue;
+            }
+
+            if (cell.getStatus() == CellStatus.UNAVAILABLE) {
+                continue;
+            }
+
+            if (isCellAvailable(
+                    cell.getCellId(),
+                    startDateTime,
+                    endDateTime)) {
+
+                try {
+                    int rentalId =
+                            rentalRepository.create(
+                                    userId,
+                                    cell.getCellId(),
+                                    startDateTime,
+                                    endDateTime
+                            );
+
+                    return rentalRepository.findById(
+                            rentalId
+                    );
+
+                } catch (SQLException e) {
+                    throw new IllegalStateException(
+                            "Не удалось создать аренду.",
+                            e
+                    );
+                }
+            }
+        }
+
+        throw new CellUnavailableException(
+                "Свободной ячейки выбранного размера " +
+                        "на данный период нет."
         );
+    }
 
-        rentals.add(rental);
-        selectedCell.setStatus(CellStatus.RENTED);
+    private void validateRentalHours(int hours) {
 
-        return rental;
+        if (hours < 1 || hours > 24) {
+            throw new IllegalArgumentException(
+                    "Продолжительность аренды должна " +
+                            "быть от 1 до 24 часов."
+            );
+        }
+    }
+
+    public void cancelRental(int rentalId) {
+
+        Rental rental =
+                findRentalById(rentalId);
+
+        if (rental == null) {
+            throw new IllegalArgumentException(
+                    "Аренда не найдена."
+            );
+        }
+
+        if (rental.getStatus() != RentalStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Эту аренду нельзя отменить."
+            );
+        }
+
+        try {
+            rentalRepository.updateStatus(
+                    rentalId,
+                    RentalStatus.CANCELLED
+            );
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось отменить аренду.",
+                    e
+            );
+        }
+    }
+
+    public int getCellRentalCount(int cellId) {
+
+        try {
+            return rentalRepository.countByCellId(cellId);
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось получить статистику ячейки.",
+                    e
+            );
+        }
+    }
+
+    public void updateExpiredRentals() {
+
+        try {
+            rentalRepository.markExpiredRentals(
+                    LocalDateTime.now()
+            );
+
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось обновить статусы аренд.",
+                    e
+            );
+        }
     }
 }

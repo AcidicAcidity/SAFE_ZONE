@@ -9,6 +9,7 @@ public class LoginView {
 
     private final SafeZoneService service;
     private final ConsoleInput input;
+    private final RegistrationView registrationView;
 
     public LoginView(
             SafeZoneService service,
@@ -16,14 +17,66 @@ public class LoginView {
 
         this.service = service;
         this.input = new ConsoleInput(scanner);
+
+        this.registrationView =
+                new RegistrationView(
+                        service,
+                        input
+                );
     }
 
     public User login() {
 
-        System.out.println("=================================");
-        System.out.println("          АВТОРИЗАЦИЯ");
-        System.out.println("=================================");
+        while (true) {
+
+            System.out.println();
+            System.out.println("=================================");
+            System.out.println("             SAFEZONE");
+            System.out.println("=================================");
+            System.out.println();
+            System.out.println("1. Войти");
+            System.out.println("2. Зарегистрироваться");
+            System.out.println("0. Завершить программу");
+            System.out.println();
+
+            String choice =
+                    input.readString("Ваш выбор: ");
+
+            switch (choice) {
+
+                case "1":
+
+                    User user = performLogin();
+
+                    if (user != null) {
+                        return user;
+                    }
+
+                    break;
+
+                case "2":
+
+                    registrationView.register();
+
+                    break;
+
+                case "0":
+
+                    return null;
+
+                default:
+
+                    System.out.println(
+                            "Неверный пункт меню."
+                    );
+            }
+        }
+    }
+
+    private User performLogin() {
+
         System.out.println();
+        System.out.println("=== ВХОД ===");
 
         String login =
                 input.readString("Логин: ");
@@ -31,56 +84,31 @@ public class LoginView {
         String password =
                 input.readString("Пароль: ");
 
-        User user =
-                service.findUserByLogin(login);
+        try {
 
-        if (user == null) {
+            User user =
+                    service.login(
+                            login,
+                            password
+                    );
 
             System.out.println();
             System.out.println(
-                    "Пользователь не найден."
+                    "Добро пожаловать, "
+                            + user.getLogin()
+                            + "!"
+            );
+
+            return user;
+
+        } catch (RuntimeException e) {
+
+            System.out.println();
+            System.out.println(
+                    "Ошибка: " + e.getMessage()
             );
 
             return null;
         }
-
-        if (!user.getPasswordHash().equals(password)) {
-
-            System.out.println();
-            System.out.println(
-                    "Неверный пароль."
-            );
-
-            return null;
-        }
-
-        if (user.getStatus().name().equals("BLOCKED")) {
-
-            System.out.println();
-            System.out.println(
-                    "Пользователь заблокирован."
-            );
-
-            return null;
-        }
-
-        if (user.getStatus().name().equals("DELETED")) {
-
-            System.out.println();
-            System.out.println(
-                    "Пользователь удалён."
-            );
-
-            return null;
-        }
-
-        System.out.println();
-        System.out.println(
-                "Добро пожаловать, "
-                        + user.getLogin()
-                        + "!"
-        );
-
-        return user;
     }
 }
