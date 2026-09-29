@@ -39,7 +39,7 @@ public class App {
             System.out.println("Port: " + data.getPort());
             System.out.println("User: " + data.getUser());
             System.out.println("Database: " + data.getDatabase());
-            System.out.println("Password: " + data.getPassword());
+            // System.out.println("Password: " + data.getPassword());
         } catch (IOException e) {
             System.err.println("Ошибка чтения JSON: " + e.getMessage());
         }

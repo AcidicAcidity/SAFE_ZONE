@@ -1,7 +1,6 @@
 package com.safeZone.model;
 import java.time.LocalDateTime;
 
-import org.postgresql.util.LruCache.CreateAction;
 
 public class Payment {
 
@@ -86,13 +85,13 @@ public class Payment {
         return endRentDate;
     }
 
-    public User getOwnerId() {
-        return userId;
+    public Integer getOwnerId() {
+        return userId.getUserId();
     }
 
     public Integer getAmount() {
-        int amount = getPriceAtHour() * rentTime;
-        return amount;
+        if (rentTime == null) return 0;
+        return getPriceAtHour() * rentTime;
     }
 
 }
