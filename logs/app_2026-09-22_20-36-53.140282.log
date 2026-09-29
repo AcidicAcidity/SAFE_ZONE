@@ -1,0 +1,23 @@
+23:36:53.221 [main] INFO  com.safeZone.App - Приложение запущено. Лог-файл: logs/app_2026-09-22_20-36-53.140282.log
+23:36:53.269 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+23:36:53.270 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+23:36:53.290 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+23:36:53.290 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+23:36:53.291 [main] INFO  com.safeZone.util.DBUtils - DBUtils инициализирован для localhost:5432
+23:36:53.331 [main] INFO  com.safeZone.App - SUCCES CONNECTION DB
+23:36:53.377 [main] ERROR com.safeZone.App - GUI START ERROR: 
+java.lang.IllegalArgumentException: Unknown color definition "blacks"
+	at com.googlecode.lanterna.TextColor$Factory.fromString(TextColor.java:695)
+	at com.googlecode.lanterna.graphics.AbstractTheme$ThemeTreeNode.parseValue(AbstractTheme.java:440)
+	at com.googlecode.lanterna.graphics.AbstractTheme$ThemeTreeNode.apply(AbstractTheme.java:413)
+	at com.googlecode.lanterna.graphics.AbstractTheme$ThemeTreeNode.access$300(AbstractTheme.java:375)
+	at com.googlecode.lanterna.graphics.AbstractTheme.addStyle(AbstractTheme.java:80)
+	at com.googlecode.lanterna.graphics.PropertyTheme.<init>(PropertyTheme.java:71)
+	at com.safeZone.views.ThemeGUI.build(ThemeGUI.java:25)
+	at com.safeZone.views.AuthMenu.start(AuthMenu.java:54)
+	at com.safeZone.App.main(App.java:67)
+Caused by: java.lang.IllegalArgumentException: No enum constant com.googlecode.lanterna.TextColor.ANSI.BLACKS
+	at java.base/java.lang.Enum.valueOf(Enum.java:293)
+	at com.googlecode.lanterna.TextColor$ANSI.valueOf(TextColor.java:80)
+	at com.googlecode.lanterna.TextColor$Factory.fromString(TextColor.java:692)
+	... 8 common frames omitted

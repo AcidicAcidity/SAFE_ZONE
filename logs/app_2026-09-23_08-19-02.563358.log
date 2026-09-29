@@ -1,0 +1,41 @@
+11:19:02.645 [main] INFO  com.safeZone.App - Приложение запущено. Лог-файл: logs/app_2026-09-23_08-19-02.563358.log
+11:19:02.688 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+11:19:02.688 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+11:19:02.707 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+11:19:02.708 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+11:19:02.709 [main] INFO  com.safeZone.util.DBUtils - DBUtils инициализирован для localhost:5432
+11:19:02.750 [main] INFO  com.safeZone.App - SUCCES CONNECTION DB
+11:19:27.539 [main] ERROR com.safeZone.App - GUI START ERROR: 
+java.lang.NullPointerException: Cannot invoke "com.safeZone.util.SafeZoneService.createUser(String, String)" because "this.service" is null
+	at com.safeZone.views.AuthMenu.lambda$showSignUpMenu$0(AuthMenu.java:152)
+	at com.googlecode.lanterna.gui2.Button.lambda$new$0(Button.java:71)
+	at com.googlecode.lanterna.gui2.Button.triggerActions(Button.java:95)
+	at com.googlecode.lanterna.gui2.Button.handleKeyStroke(Button.java:87)
+	at com.googlecode.lanterna.gui2.AbstractInteractableComponent.handleInput(AbstractInteractableComponent.java:145)
+	at com.googlecode.lanterna.gui2.AbstractBasePane.doHandleInput(AbstractBasePane.java:167)
+	at com.googlecode.lanterna.gui2.AbstractBasePane.handleInput(AbstractBasePane.java:103)
+	at com.googlecode.lanterna.gui2.AbstractWindow.handleInput(AbstractWindow.java:135)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.handleInput(MultiWindowTextGUI.java:365)
+	at com.googlecode.lanterna.gui2.AbstractTextGUI.processInput(AbstractTextGUI.java:94)
+	at com.googlecode.lanterna.gui2.AbstractTextGUIThread.processEventsAndUpdate(AbstractTextGUIThread.java:77)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.waitForWindowToClose(MultiWindowTextGUI.java:508)
+	at com.googlecode.lanterna.gui2.AbstractWindow.waitUntilClosed(AbstractWindow.java:321)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.addWindowAndWait(MultiWindowTextGUI.java:484)
+	at com.safeZone.views.AuthMenu.showSignUpMenu(AuthMenu.java:178)
+	at com.safeZone.views.AuthMenu.lambda$showAuthMenu$1(AuthMenu.java:70)
+	at com.googlecode.lanterna.gui2.Button.lambda$new$0(Button.java:71)
+	at com.googlecode.lanterna.gui2.Button.triggerActions(Button.java:95)
+	at com.googlecode.lanterna.gui2.Button.handleKeyStroke(Button.java:87)
+	at com.googlecode.lanterna.gui2.AbstractInteractableComponent.handleInput(AbstractInteractableComponent.java:145)
+	at com.googlecode.lanterna.gui2.AbstractBasePane.doHandleInput(AbstractBasePane.java:167)
+	at com.googlecode.lanterna.gui2.AbstractBasePane.handleInput(AbstractBasePane.java:103)
+	at com.googlecode.lanterna.gui2.AbstractWindow.handleInput(AbstractWindow.java:135)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.handleInput(MultiWindowTextGUI.java:365)
+	at com.googlecode.lanterna.gui2.AbstractTextGUI.processInput(AbstractTextGUI.java:94)
+	at com.googlecode.lanterna.gui2.AbstractTextGUIThread.processEventsAndUpdate(AbstractTextGUIThread.java:77)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.waitForWindowToClose(MultiWindowTextGUI.java:508)
+	at com.googlecode.lanterna.gui2.AbstractWindow.waitUntilClosed(AbstractWindow.java:321)
+	at com.googlecode.lanterna.gui2.MultiWindowTextGUI.addWindowAndWait(MultiWindowTextGUI.java:484)
+	at com.safeZone.views.AuthMenu.showAuthMenu(AuthMenu.java:85)
+	at com.safeZone.views.AuthMenu.start(AuthMenu.java:56)
+	at com.safeZone.App.main(App.java:67)

@@ -1,0 +1,22 @@
+13:26:35.037 [main] INFO  com.safeZone.App - Приложение запущено. Лог-файл: logs/app_2026-09-12_10-26-34.956396.log
+13:26:35.081 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+13:26:35.082 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+13:26:35.103 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+13:26:35.103 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+13:26:35.104 [main] INFO  com.safeZone.util.DBUtils - DBUtils инициализирован для localhost:5432
+13:26:35.161 [main] ERROR com.safeZone.util.DBHelper - Ошибка подключения к БД: FATAL: database "safe_zone" does not exist
+org.postgresql.util.PSQLException: FATAL: database "safe_zone" does not exist
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2725)
+	at org.postgresql.core.v3.QueryExecutorImpl.readStartupMessages(QueryExecutorImpl.java:2837)
+	at org.postgresql.core.v3.QueryExecutorImpl.<init>(QueryExecutorImpl.java:175)
+	at org.postgresql.core.v3.ConnectionFactoryImpl.openConnectionImpl(ConnectionFactoryImpl.java:317)
+	at org.postgresql.core.ConnectionFactory.openConnection(ConnectionFactory.java:54)
+	at org.postgresql.jdbc.PgConnection.<init>(PgConnection.java:273)
+	at org.postgresql.Driver.makeConnection(Driver.java:446)
+	at org.postgresql.Driver.connect(Driver.java:298)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:613)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:199)
+	at com.safeZone.util.DBUtils.getConnection(DBUtils.java:40)
+	at com.safeZone.util.DBHelper.checkDBConnection(DBHelper.java:29)
+	at com.safeZone.App.main(App.java:54)
+13:26:35.161 [main] ERROR com.safeZone.App - FAILED CONNECTION DB
