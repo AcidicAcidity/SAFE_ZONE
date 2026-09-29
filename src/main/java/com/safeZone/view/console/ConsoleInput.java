@@ -3,24 +3,25 @@ package com.safezone.view.console;
 import com.safezone.domain.enums.CellSize;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 public class ConsoleInput {
 
     private final Scanner scanner;
 
-    private final DateTimeFormatter dateFormatter =
-            DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private final DateTimeFormatter dateTimeFormatter =
+            DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
     public ConsoleInput(Scanner scanner) {
         this.scanner = scanner;
     }
 
     public String readString(String message) {
-
         System.out.print(message);
-
         return scanner.nextLine();
     }
 
@@ -48,9 +49,10 @@ public class ConsoleInput {
 
         while (true) {
 
-            int hours = readInt(
-                    "Введите продолжительность аренды (1-24 часа): "
-            );
+            int hours =
+                    readInt(
+                            "Введите продолжительность аренды (1-24 часа): "
+                    );
 
             if (hours >= 1 && hours <= 24) {
                 return hours;
@@ -62,56 +64,16 @@ public class ConsoleInput {
         }
     }
 
-    public LocalDate readRentalDate() {
+    public LocalDateTime readRentalStartDateTime() {
+        LocalDateTime now = LocalDateTime.now();
 
-        while (true) {
+        System.out.println();
+        System.out.println(
+                "Начало аренды: "
+                        + now.format(dateTimeFormatter)
+        );
 
-            System.out.print(
-                    "Введите дату (дд.мм.гггг): "
-            );
-
-            String input = scanner.nextLine();
-
-            try {
-
-                LocalDate date =
-                        LocalDate.parse(
-                                input,
-                                dateFormatter
-                        );
-
-                LocalDate today =
-                        LocalDate.now();
-
-                if (date.isBefore(today)) {
-
-                    System.out.println(
-                            "Нельзя выбрать дату в прошлом."
-                    );
-
-                    System.out.println(
-                            "Сегодня: "
-                                    + today.format(
-                                    dateFormatter
-                            )
-                    );
-
-                    continue;
-                }
-
-                return date;
-
-            } catch (Exception e) {
-
-                System.out.println(
-                        "Некорректная дата."
-                );
-
-                System.out.println(
-                        "Используйте формат: дд.мм.гггг"
-                );
-            }
-        }
+        return now;
     }
 
     public CellSize readCellSize() {

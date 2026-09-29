@@ -1,6 +1,7 @@
 package com.safezone.view.console;
 
 import com.safezone.application.service.SafeZoneService;
+import com.safezone.domain.enums.Role;
 import com.safezone.domain.model.User;
 
 import java.util.Scanner;
@@ -13,6 +14,7 @@ public class ConsoleMenu {
     private final WarehouseView warehouseView;
     private final CellView cellView;
     private final RentalView rentalView;
+    private final AdminView adminView;
 
     public ConsoleMenu(
             SafeZoneService service,
@@ -29,6 +31,9 @@ public class ConsoleMenu {
 
         rentalView =
                 new RentalView(service, scanner);
+
+        adminView =
+                new AdminView(service, scanner);
     }
 
     public void start(User currentUser) {
@@ -40,7 +45,7 @@ public class ConsoleMenu {
             clearScreen();
 
             showHeader(currentUser);
-            showMenu();
+            showMenu(currentUser);
 
             String choice =
                     input.readString(
@@ -51,26 +56,45 @@ public class ConsoleMenu {
 
                 case "1":
                     clearScreen();
+
                     warehouseView.showWarehouses();
+
                     input.waitForEnter();
                     break;
 
                 case "2":
                     clearScreen();
+
                     cellView.showAllCells();
+
                     input.waitForEnter();
                     break;
 
                 case "3":
                     clearScreen();
+
                     rentalView.rentCell(currentUser);
+
                     input.waitForEnter();
                     break;
 
                 case "4":
                     clearScreen();
+
                     rentalView.showMyRentals(currentUser);
+
                     input.waitForEnter();
+                    break;
+
+                case "5":
+
+                    if (currentUser.getRole() == Role.ADMIN) {
+
+                        clearScreen();
+
+                        adminView.start();
+                    }
+
                     break;
 
                 case "0":
@@ -82,6 +106,7 @@ public class ConsoleMenu {
                     System.out.println(
                             "Неверный пункт меню."
                     );
+
                     input.waitForEnter();
                     break;
             }
@@ -123,7 +148,7 @@ public class ConsoleMenu {
         );
     }
 
-    private void showMenu() {
+    private void showMenu(User currentUser) {
 
         System.out.println(
                 "1. Показать склады"
@@ -140,6 +165,13 @@ public class ConsoleMenu {
         System.out.println(
                 "4. Мои аренды"
         );
+
+        if (currentUser.getRole() == Role.ADMIN) {
+
+            System.out.println(
+                    "5. Панель администратора"
+            );
+        }
 
         System.out.println(
                 "0. Выход"

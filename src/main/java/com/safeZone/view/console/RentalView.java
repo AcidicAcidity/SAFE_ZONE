@@ -7,7 +7,6 @@ import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
@@ -81,13 +80,33 @@ public class RentalView {
         }
     }
 
-    private void rentSpecificCell(
-            User currentUser) {
+    private void rentSpecificCell(User currentUser) {
 
         System.out.println();
         System.out.println(
                 "=== Выбор конкретной ячейки ==="
         );
+        System.out.println();
+
+        System.out.println("Доступные ячейки:");
+        System.out.println();
+
+        for (Cell cell : service.getCells()) {
+
+            if (cell.getStatus() == CellStatus.AVAILABLE) {
+
+                System.out.println(
+                        "ID: "
+                                + cell.getCellId()
+                                + " | Склад: "
+                                + cell.getWarehouseId()
+                                + " | Ячейка: "
+                                + cell.getNumber()
+                                + " | Размер: "
+                                + cell.getSize()
+                );
+            }
+        }
 
         System.out.println();
 
@@ -112,7 +131,7 @@ public class RentalView {
                 != CellStatus.AVAILABLE) {
 
             System.out.println(
-                    "Эта ячейка уже занята."
+                    "Эта ячейка недоступна."
             );
 
             return;
@@ -132,14 +151,11 @@ public class RentalView {
 
         System.out.println();
 
-        LocalDate date =
-                input.readRentalDate();
+        LocalDateTime startDateTime =
+                input.readRentalStartDateTime();
 
         int hours =
                 input.readRentalHours();
-
-        LocalDateTime startDateTime =
-                date.atStartOfDay();
 
         try {
 
@@ -166,9 +182,7 @@ public class RentalView {
             );
         }
     }
-
-    private void rentCellBySize(
-            User currentUser) {
+    private void rentCellBySize(User currentUser) {
 
         System.out.println();
         System.out.println(
@@ -184,14 +198,11 @@ public class RentalView {
 
         System.out.println();
 
-        LocalDate date =
-                input.readRentalDate();
+        LocalDateTime startDateTime =
+                input.readRentalStartDateTime();
 
         int hours =
                 input.readRentalHours();
-
-        LocalDateTime startDateTime =
-                date.atStartOfDay();
 
         try {
 
@@ -228,6 +239,7 @@ public class RentalView {
                 );
 
         System.out.println();
+
         System.out.println(
                 "================================="
         );
@@ -278,8 +290,7 @@ public class RentalView {
         );
     }
 
-    public void showMyRentals(
-            User currentUser) {
+    public void showMyRentals(User currentUser) {
 
         System.out.println(
                 "================================="

@@ -73,6 +73,10 @@ public class SafeZoneService {
         return rentals;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
     public List<Cell> getAvailableCells() {
         return cells.stream()
                 .filter(cell ->
@@ -89,6 +93,106 @@ public class SafeZoneService {
         }
 
         return null;
+    }
+
+    public User findUserById(int userId) {
+        for (User user : users) {
+            if (user.getUserId() == userId) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
+    public void blockUser(int userId) {
+
+        User user = findUserById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException("Пользователь не найден");
+        }
+
+        user.setStatus(UserStatus.BLOCKED);
+    }
+
+    public void unblockUser(int userId) {
+
+        User user = findUserById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException(
+                    "Пользователь не найден."
+            );
+        }
+
+        user.setStatus(UserStatus.ACTIVE);
+    }
+
+    public void deleteUser(int userId) {
+
+        User user = findUserById(userId);
+
+        if (user == null) {
+            throw new IllegalArgumentException(
+                    "Пользователь не найден."
+            );
+        }
+
+        user.setStatus(UserStatus.DELETED);
+    }
+
+    public int getCellRentalCount(int cellId) {
+
+        int count = 0;
+
+        for (Rental rental : rentals) {
+
+            if (rental.getCellId() == cellId) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    public Rental findRentalById(int rentalId) {
+
+        for (Rental rental : rentals) {
+
+            if (rental.getRentalId() == rentalId) {
+                return rental;
+            }
+        }
+
+        return null;
+    }
+
+    public void cancelRental(int rentalId) {
+
+        Rental rental = findRentalById(rentalId);
+
+        if (rental == null) {
+            throw new IllegalArgumentException(
+                    "Бронь не найдена."
+            );
+        }
+
+        if (rental.getStatus() != RentalStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Эту бронь нельзя отменить."
+            );
+        }
+
+        rental.setStatus(RentalStatus.CANCELLED);
+
+        Cell cell = findCellById(
+                rental.getCellId()
+        );
+
+        if (cell != null) {
+            cell.setStatus(CellStatus.AVAILABLE);
+        }
     }
 
     public Cell findCellById(int cellId) {
