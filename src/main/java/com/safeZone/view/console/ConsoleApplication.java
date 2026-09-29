@@ -12,6 +12,7 @@ import com.safezone.infrastructure.data.repository.PostgresWarehouseRepository;
 import com.safezone.infrastructure.data.repository.RentalRepository;
 import com.safezone.infrastructure.data.repository.UserRepository;
 import com.safezone.infrastructure.data.repository.WarehouseRepository;
+import com.safezone.infrastructure.data.DatabaseInitializer;
 
 import java.util.Scanner;
 
@@ -25,20 +26,15 @@ public class ConsoleApplication {
 
     public ConsoleApplication() {
 
-        /*
-         * =========================================
-         * DATABASE
-         * =========================================
-         */
 
         DBHelper dbHelper = new DBHelper();
 
+        DatabaseInitializer databaseInitializer =
+                new DatabaseInitializer(dbHelper);
 
-        /*
-         * =========================================
-         * REPOSITORIES
-         * =========================================
-         */
+        databaseInitializer.initialize();
+
+
 
         UserRepository userRepository =
                 new PostgresUserRepository(
@@ -61,11 +57,6 @@ public class ConsoleApplication {
                 );
 
 
-        /*
-         * =========================================
-         * SERVICES
-         * =========================================
-         */
 
         PasswordService passwordService =
                 new PasswordService();
@@ -80,11 +71,6 @@ public class ConsoleApplication {
                 );
 
 
-        /*
-         * =========================================
-         * CONSOLE
-         * =========================================
-         */
 
         scanner = new Scanner(System.in);
 
@@ -107,12 +93,6 @@ public class ConsoleApplication {
 
         while (applicationRunning) {
 
-            /*
-             * Показываем экран авторизации.
-             *
-             * Если пользователь выбрал "0",
-             * login() вернёт null.
-             */
             User currentUser =
                     loginView.login();
 
@@ -122,16 +102,6 @@ public class ConsoleApplication {
             }
 
 
-            /*
-             * Пользователь успешно вошёл.
-             *
-             * ConsoleMenu.start() возвращает:
-             *
-             * true  -> пользователь вышел
-             *         из аккаунта;
-             *
-             * false -> приложение нужно завершить.
-             */
             boolean logout =
                     consoleMenu.start(
                             currentUser
