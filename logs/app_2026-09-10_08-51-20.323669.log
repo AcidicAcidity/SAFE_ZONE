@@ -1,0 +1,23 @@
+11:51:20.405 [main] INFO  com.safeZone.App - Приложение запущено. Лог-файл: logs/app_2026-09-10_08-51-20.323669.log
+11:51:20.454 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+11:51:20.454 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+11:51:20.476 [main] INFO  com.safeZone.util.JsonReader - Чтение JSON из ресурса: config.json
+11:51:20.476 [main] INFO  com.safeZone.util.JsonReader - Чтение завершено.
+11:51:20.476 [main] ERROR com.safeZone.App - ERROR INIT CONNECT DATABASE: Unrecognized field "database" (class com.safeZone.util.JsonData), not marked as ignorable (6 known properties: "port", "host", "token", "password", "user", "dataBase"])
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 16] (through reference chain: com.safeZone.util.JsonData["database"])
+com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "database" (class com.safeZone.util.JsonData), not marked as ignorable (6 known properties: "port", "host", "token", "password", "user", "dataBase"])
+ at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 4, column: 16] (through reference chain: com.safeZone.util.JsonData["database"])
+	at com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException.from(UnrecognizedPropertyException.java:61)
+	at com.fasterxml.jackson.databind.DeserializationContext.handleUnknownProperty(DeserializationContext.java:1153)
+	at com.fasterxml.jackson.databind.deser.std.StdDeserializer.handleUnknownProperty(StdDeserializer.java:2241)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.handleUnknownProperty(BeanDeserializerBase.java:1793)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializerBase.handleUnknownVanilla(BeanDeserializerBase.java:1771)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.vanillaDeserialize(BeanDeserializer.java:316)
+	at com.fasterxml.jackson.databind.deser.BeanDeserializer.deserialize(BeanDeserializer.java:177)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:342)
+	at com.fasterxml.jackson.databind.ObjectMapper._readMapAndClose(ObjectMapper.java:4905)
+	at com.fasterxml.jackson.databind.ObjectMapper.readValue(ObjectMapper.java:3885)
+	at com.safeZone.util.JsonReader.readDataFromJson(JsonReader.java:25)
+	at com.safeZone.util.DBUtils.<init>(DBUtils.java:26)
+	at com.safeZone.util.DBUtils.<init>(DBUtils.java:20)
+	at com.safeZone.App.main(App.java:46)
