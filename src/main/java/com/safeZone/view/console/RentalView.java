@@ -6,6 +6,8 @@ import com.safezone.domain.enums.CellStatus;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
+import java.sql.SQLException;
+import com.safezone.application.exception.CellUnavailableException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -83,70 +85,83 @@ public class RentalView {
     private void rentSpecificCell(User currentUser) {
 
         System.out.println();
-        System.out.println(
-                "=== Выбор конкретной ячейки ==="
-        );
+        System.out.println("=== Выбор конкретной ячейки ===");
         System.out.println();
+
+        // Получаем все физически доступные ячейки
+        List<Cell> availableCells;
+
+        try {
+
+            availableCells = service.getAvailableCells();
+
+        } catch (IllegalStateException e) {
+
+            System.out.println();
+            System.out.println(
+                    "Не удалось получить список доступных ячеек."
+            );
+
+            System.out.println(e.getMessage());
+
+            return;
+        }
+
+        if (availableCells.isEmpty()) {
+
+            System.out.println(
+                    "Доступных ячеек нет."
+            );
+
+            return;
+        }
 
         System.out.println("Доступные ячейки:");
         System.out.println();
 
-        for (Cell cell : service.getCells()) {
+        for (Cell cell : availableCells) {
 
-            if (cell.getStatus() == CellStatus.AVAILABLE) {
+            System.out.println(
+                    "ID: " + cell.getCellId()
+                            + " | Склад: " + cell.getWarehouseId()
+                            + " | Ячейка: " + cell.getNumber()
+                            + " | Размер: " + cell.getSize()
+            );
+        }
 
-                System.out.println(
-                        "ID: "
-                                + cell.getCellId()
-                                + " | Склад: "
-                                + cell.getWarehouseId()
-                                + " | Ячейка: "
-                                + cell.getNumber()
-                                + " | Размер: "
-                                + cell.getSize()
-                );
+        System.out.println();
+
+        int cellId = input.readInt(
+                "Введите ID ячейки: "
+        );
+
+        Cell selectedCell = null;
+
+        for (Cell cell : availableCells) {
+
+            if (cell.getCellId() == cellId) {
+                selectedCell = cell;
+                break;
             }
         }
 
-        System.out.println();
+        if (selectedCell == null) {
 
-        int cellId =
-                input.readInt(
-                        "Введите ID ячейки: "
-                );
-
-        Cell cell =
-                service.findCellById(cellId);
-
-        if (cell == null) {
-
+            System.out.println();
             System.out.println(
-                    "Ячейка не найдена."
-            );
-
-            return;
-        }
-
-        if (cell.getStatus()
-                != CellStatus.AVAILABLE) {
-
-            System.out.println(
-                    "Эта ячейка недоступна."
+                    "Неправильная ячейка."
             );
 
             return;
         }
 
         System.out.println();
-
         System.out.println(
-                "Ячейка: "
-                        + cell.getNumber()
+                "Ячейка: " + selectedCell.getNumber()
         );
 
         System.out.println(
-                "Размер: "
-                        + cell.getSize()
+                "Размер: " + selectedCell.getSize()
         );
 
         System.out.println();
@@ -167,21 +182,36 @@ public class RentalView {
                             hours
                     );
 
+            System.out.println();
+            System.out.println(
+                    "Аренда успешно создана."
+            );
+
             printRentalResult(rental);
+
+        } catch (CellUnavailableException e) {
+
+            System.out.println();
+            System.out.println(
+                    "Ячейка занята в выбранный период."
+            );
 
         } catch (IllegalArgumentException e) {
 
+            System.out.println();
             System.out.println(
                     e.getMessage()
             );
 
         } catch (IllegalStateException e) {
 
+            System.out.println();
             System.out.println(
                     e.getMessage()
             );
         }
     }
+
     private void rentCellBySize(User currentUser) {
 
         System.out.println();

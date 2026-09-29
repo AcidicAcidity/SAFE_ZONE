@@ -18,9 +18,11 @@ import com.safezone.infrastructure.data.repository.RentalRepository;
 import com.safezone.infrastructure.data.repository.UserRepository;
 import com.safezone.infrastructure.data.repository.WarehouseRepository;
 
+
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.ArrayList;
 
 public class SafeZoneService {
 
@@ -275,20 +277,36 @@ public class SafeZoneService {
     public List<Cell> getAvailableCells() {
 
         try {
-            return cellRepository.findAvailable();
+
+            List<Cell> cells =
+                    cellRepository.findAvailable();
+
+            List<Cell> availableCells =
+                    new ArrayList<>();
+
+            for (Cell cell : cells) {
+
+                if (!rentalRepository.hasActiveRental(
+                        cell.getCellId()
+                )) {
+
+                    availableCells.add(cell);
+                }
+            }
+
+            return availableCells;
 
         } catch (SQLException e) {
+
             throw new IllegalStateException(
-                    "Не удалось получить свободные ячейки.",
+                    "Не удалось получить доступные ячейки.",
                     e
             );
         }
     }
 
-    /**
-     * Проверяет, свободна ли ячейка
-     * в указанный интервал времени.
-     */
+    //Проверяет, свободна ли ячейка в указанный интервал времени.
+
     public boolean isCellAvailable(
             int cellId,
             LocalDateTime startDateTime,

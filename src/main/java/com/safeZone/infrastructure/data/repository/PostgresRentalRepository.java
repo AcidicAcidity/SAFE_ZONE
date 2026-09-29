@@ -160,6 +160,29 @@ public class PostgresRentalRepository
     }
 
     @Override
+    public boolean hasActiveRental(
+            int cellId
+    ) throws SQLException {
+
+        String sql =
+                "SELECT rental_id " +
+                        "FROM rentals " +
+                        "WHERE cell_id = ? " +
+                        "AND status = 'ACTIVE' " +
+                        "AND start_date_time <= CURRENT_TIMESTAMP " +
+                        "AND end_date_time > CURRENT_TIMESTAMP " +
+                        "LIMIT 1";
+
+        Map<String, Object> row =
+                dbHelper.getSingleRow(
+                        sql,
+                        cellId
+                );
+
+        return row != null;
+    }
+
+    @Override
     public boolean hasOverlappingRental(
             int cellId,
             LocalDateTime startDateTime,
