@@ -34,3 +34,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+<<<<<<< HEAD
+=======
+
+config.json
+>>>>>>> 2293c882ed79de1566d352a1740d7a3b91df95d8
