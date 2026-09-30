@@ -1,15 +1,25 @@
 package com.safezone.view.console;
 
 import com.safezone.application.service.SafeZoneService;
-import com.safezone.domain.enums.UserStatus;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 
 import java.util.List;
 import java.util.Scanner;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Properties;
+import com.safezone.infrastructure.data.envRead;
+import com.safezone.application.service.ExportDB;
 
 public class AdminView {
+
+    private final Properties env = envRead.readEnv();
+
+    private final String url = env.getProperty("DB_URL");
+    private final String user = env.getProperty("DB_USER");
+    private final String password = env.getProperty("DB_PASSWORD");
 
     private final SafeZoneService service;
     private final ConsoleInput input;
@@ -35,6 +45,7 @@ public class AdminView {
             System.out.println("1. Статистика по ячейкам");
             System.out.println("2. Управление аккаунтами");
             System.out.println("3. Управление бронями");
+            System.out.println("4. Иморт базы данных в csv");
             System.out.println("0. Назад");
 
             System.out.println();
@@ -54,6 +65,14 @@ public class AdminView {
 
                 case "3":
                     manageRentals();
+                    break;
+
+                case "4":
+                    try {
+                        ExportDB.exportDatabaseToXlsx(url, user, password);
+                    } catch (SQLException | IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
 
                 case "0":

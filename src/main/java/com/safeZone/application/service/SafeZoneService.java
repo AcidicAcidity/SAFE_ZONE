@@ -7,7 +7,6 @@ import com.safezone.application.exception.UserNotFoundException;
 import com.safezone.domain.enums.CellSize;
 import com.safezone.domain.enums.CellStatus;
 import com.safezone.domain.enums.RentalStatus;
-import com.safezone.domain.enums.Role;
 import com.safezone.domain.enums.UserStatus;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
