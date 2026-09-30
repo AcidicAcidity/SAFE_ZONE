@@ -45,7 +45,7 @@ public class AdminView {
             System.out.println("1. Статистика по ячейкам");
             System.out.println("2. Управление аккаунтами");
             System.out.println("3. Управление бронями");
-            System.out.println("4. Иморт базы данных в csv");
+            System.out.println("4. Иморт базы данных в xlsx");
             System.out.println("0. Назад");
 
             System.out.println();
