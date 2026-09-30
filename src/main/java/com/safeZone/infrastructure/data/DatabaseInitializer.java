@@ -1,9 +1,11 @@
 package com.safezone.infrastructure.data;
 
+import com.safezone.application.service.PasswordService;
 import com.safezone.domain.enums.CellSize;
 
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 
 public class DatabaseInitializer {
 
@@ -16,8 +18,11 @@ public class DatabaseInitializer {
     public void initialize() {
 
         try {
+            initializeAdmin();
             initializeWarehouse();
+
         } catch (SQLException e) {
+
             throw new RuntimeException(
                     "Ошибка при инициализации базы данных",
                     e
@@ -25,7 +30,63 @@ public class DatabaseInitializer {
         }
     }
 
-    private void initializeWarehouse() throws SQLException {
+    private void initializeAdmin()
+            throws SQLException {
+
+        Properties env =
+                envRead.readEnv();
+
+        String adminLogin =
+                env.getProperty("ADMIN_LOGIN");
+
+        String adminPassword =
+                env.getProperty("ADMIN_PASSWORD");
+
+        if (adminLogin == null
+                || adminLogin.isBlank()
+                || adminPassword == null
+                || adminPassword.isBlank()) {
+
+            throw new IllegalStateException(
+                    "ADMIN_LOGIN или ADMIN_PASSWORD не указаны в .env"
+            );
+        }
+
+        Map<String, Object> admin =
+                dbHelper.getSingleRow(
+                        "SELECT user_id " +
+                                "FROM users " +
+                                "WHERE login = ?",
+                        adminLogin
+                );
+
+        if (admin != null) {
+            return;
+        }
+
+        PasswordService passwordService = new PasswordService();
+
+        String passwordHash =
+                passwordService.hash(
+                        adminPassword
+                );
+
+        dbHelper.executeUpdateData(
+                "INSERT INTO users " +
+                        "(login, password_hash, status, role) " +
+                        "VALUES (?, ?, 'ACTIVE', 'ADMIN')",
+                adminLogin,
+                passwordHash
+        );
+
+        System.out.println(
+                "Создан администратор: "
+                        + adminLogin
+        );
+    }
+
+    private void initializeWarehouse()
+            throws SQLException {
 
         Map<String, Object> warehouse =
                 dbHelper.getSingleRow(
@@ -36,25 +97,32 @@ public class DatabaseInitializer {
             return;
         }
 
-        int warehouseId = dbHelper.executeInsertReturning(
-                "INSERT INTO warehouses (name, address) " +
-                        "VALUES (?, ?) RETURNING warehouse_id",
-                "Склад Владимир",
-                "Адрес 1"
-        );
+        int warehouseId =
+                dbHelper.executeInsertReturning(
+                        "INSERT INTO warehouses (name, address) " +
+                                "VALUES (?, ?) RETURNING warehouse_id",
+                        "Склад Владимир",
+                        "Адрес 1"
+                );
 
         initializeCells(warehouseId);
 
-        System.out.println("Создан тестовый склад: Склад 1");
-        System.out.println("Создано 28 ячеек.");
+        System.out.println(
+                "Создан тестовый склад: Склад 1"
+        );
+
+        System.out.println(
+                "Создано 28 ячеек."
+        );
     }
 
-    private void initializeCells(int warehouseId)
-            throws SQLException {
+    private void initializeCells(
+            int warehouseId) throws SQLException {
 
         for (int block = 0; block < 4; block++) {
 
-            int columnStart = block * 4 + 1;
+            int columnStart =
+                    block * 4 + 1;
 
             createSmallCells(
                     warehouseId,
@@ -80,7 +148,8 @@ public class DatabaseInitializer {
 
         for (int i = 0; i < 4; i++) {
 
-            int column = columnStart + i;
+            int column =
+                    columnStart + i;
 
             createCell(
                     warehouseId,

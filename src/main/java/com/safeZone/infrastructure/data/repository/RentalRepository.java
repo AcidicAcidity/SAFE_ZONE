@@ -29,6 +29,10 @@ public interface RentalRepository {
 
     int countByCellId(int cellId) throws SQLException;
 
+    boolean hasActiveRental(
+            int cellId
+    ) throws SQLException;
+
     boolean hasOverlappingRental(
             int cellId,
             LocalDateTime startDateTime,
