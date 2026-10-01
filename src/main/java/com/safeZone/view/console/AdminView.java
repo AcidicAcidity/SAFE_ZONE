@@ -5,6 +5,7 @@ import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import com.safezone.infrastructure.data.envRead;
 import com.safezone.application.service.ExportDB;
+import com.safezone.utils.DateTimeUtil;
 
 public class AdminView {
 
@@ -327,14 +329,16 @@ public class AdminView {
             System.out.println(
                     "Бронь №"
                             + rental.getRentalId()
-                            + " | Пользователь: "
+                            + " | ID Ячейки: "
+                            + cell.getCellId()
+                            + " | ID Пользователя: "
                             + rental.getUserId()
                             + " | Ячейка: "
                             + cell.getNumber()
                             + " | Начало: "
-                            + rental.getStartDateTime()
+                            + DateTimeUtil.format(rental.getStartDateTime())
                             + " | Окончание: "
-                            + rental.getEndDateTime()
+                            + DateTimeUtil.format(rental.getEndDateTime())
                             + " | Статус: "
                             + rental.getStatus()
             );

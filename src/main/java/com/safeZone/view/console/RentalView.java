@@ -8,6 +8,7 @@ import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 import java.sql.SQLException;
 import com.safezone.application.exception.CellUnavailableException;
+import com.safezone.utils.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -306,12 +307,12 @@ public class RentalView {
 
         System.out.println(
                 "Начало: "
-                        + rental.getStartDateTime()
+                        + DateTimeUtil.format(rental.getStartDateTime())
         );
 
         System.out.println(
                 "Окончание: "
-                        + rental.getEndDateTime()
+                        + DateTimeUtil.format(rental.getEndDateTime())
         );
 
         System.out.println(
@@ -379,12 +380,12 @@ public class RentalView {
 
             System.out.println(
                     "Начало: "
-                            + rental.getStartDateTime()
+                            + DateTimeUtil.format(rental.getStartDateTime())
             );
 
             System.out.println(
                     "Окончание: "
-                            + rental.getEndDateTime()
+                            + DateTimeUtil.format(rental.getEndDateTime())
             );
 
             System.out.println(
