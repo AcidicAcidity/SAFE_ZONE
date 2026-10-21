@@ -1,0 +1,21 @@
+server:
+  port: 8080
+
+app:
+  db:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/safezone}
+    user: ${DB_USER:safezone}
+    password: ${DB_PASSWORD:safezone}
+  jwt:
+    secret: ${JWT_SECRET}          # минимум 32 символа
+    access-ttl-minutes: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true              # /actuator/health/readiness
