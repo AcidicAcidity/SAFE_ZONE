@@ -243,6 +243,17 @@ public class SafeZoneService {
         }
     }
 
+    public Warehouse getById(int warehouseId) {
+        try {
+            return warehouseRepository.findById(warehouseId);
+        } catch (SQLException e) {
+            throw new IllegalStateException(
+                    "Не удалось найти склад по ID.",
+                    e
+            );
+        }
+    }
+
     // =========================================================
     // CELLS
     // =========================================================
