@@ -310,6 +310,24 @@ public class SafeZoneService {
        }
     }
 
+    public List<Cell> findByWarehouseId(int warehouseId) {
+        try {
+            return cellRepository.findByWarehouseId(warehouseId);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Не удалось получить список ячеек конкретного склада,");
+        }
+    }
+
+
+    public int createCell(int warehouseId, int row, int column, String size) {
+        try {
+            cellRepository.createCell(warehouseId, row, column, size);
+            return -1;
+        } catch (SQLException e) {
+            throw new IllegalStateException("Не удалось создать новую ячейку");
+        }
+    }
+
     //Проверяет, свободна ли ячейка в указанный интервал времени.
 
     public boolean isCellAvailable(
