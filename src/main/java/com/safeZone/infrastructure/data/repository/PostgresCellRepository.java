@@ -82,6 +82,44 @@ public class PostgresCellRepository implements CellRepository {
         return cells;
     }
 
+    @Override
+    public List<Cell> findByWarehouseId(int warehouseId) throws SQLException {
+
+        String sql =
+                "SELECT cell_id, warehouse_id, row_num, " +
+                "column_num, number, size, status " +
+                "FROM cells " +
+                "WHERE warehouse_id = ?";
+
+        List<Map<String, Object>> rows =
+                dbHelper.getDataFromDB(sql, warehouseId);
+
+        List<Cell> cells = new ArrayList<>();
+
+        for (Map<String, Object> row : rows) {
+            cells.add(mapCell(row));
+        }
+
+        return cells;
+    }
+
+    @Override
+    public int createCell (int warehouseId, int row, int column, String size) throws SQLException {
+
+        String number = size.substring(0, 1) + "-" + String.valueOf(warehouseId) + "-" + String.valueOf(column);
+
+        String sql =
+                "INSERT INTO cells (warehouse_id, " +
+                "row_num, column_num, number, size)" +
+                "VALUES (" + warehouseId + ", " + row +
+                ", " + column + ", " + number +
+                size;
+
+        dbHelper.executeInsertReturning(sql);
+
+        return -1;
+    }
+
     private Cell mapCell(
             Map<String, Object> row) {
 
