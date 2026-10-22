@@ -243,7 +243,7 @@ public class SafeZoneService {
         }
     }
 
-    public Warehouse getById(int warehouseId) {
+    public Warehouse getWarehouseById(int warehouseId) {
         try {
             return warehouseRepository.findById(warehouseId);
         } catch (SQLException e) {
