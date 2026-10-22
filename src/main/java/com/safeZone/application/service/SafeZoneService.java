@@ -284,35 +284,14 @@ public class SafeZoneService {
         }
     }
 
-    public List<Cell> getAvailableCells() {
-
-        try {
-
-            List<Cell> cells =
-                    cellRepository.findAvailable();
-
-            List<Cell> availableCells =
-                    new ArrayList<>();
-
-            for (Cell cell : cells) {
-
-                if (!rentalRepository.hasActiveRental(
-                        cell.getCellId()
-                )) {
-
-                    availableCells.add(cell);
-                }
+    public List<Cell> getAvailableCells(LocalDateTime start, LocalDateTime end) {
+        List<Cell> result = new ArrayList<>();
+        for (Cell cell: getCells()) {
+            if (isCellAvailable(cell.getCellId(), start, end)) {
+               result.add(cell);
             }
-
-            return availableCells;
-
-        } catch (SQLException e) {
-
-            throw new IllegalStateException(
-                    "Не удалось получить доступные ячейки.",
-                    e
-            );
         }
+        return result;
     }
 
     //Проверяет, свободна ли ячейка в указанный интервал времени.
@@ -349,20 +328,6 @@ public class SafeZoneService {
         }
     }
 
-    public List<Cell> getAvailableCells(
-            LocalDateTime startDateTime,
-            LocalDateTime endDateTime) {
-
-        try {
-            return cellRepository.findAvailable();
-
-        } catch (SQLException e) {
-            throw new IllegalStateException(
-                    "Не удалось получить ячейки.",
-                    e
-            );
-        }
-    }
 
     // =========================================================
     // RENTALS
