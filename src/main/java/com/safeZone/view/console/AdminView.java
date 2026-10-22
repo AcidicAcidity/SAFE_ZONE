@@ -1,11 +1,12 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.RentalService;
+import com.safezone.application.service.CellService;
+import com.safezone.application.service.UserService;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
 import com.safezone.domain.model.User;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.io.IOException;
@@ -23,14 +24,20 @@ public class AdminView {
     private final String user = env.getProperty("DB_USER");
     private final String password = env.getProperty("DB_PASSWORD");
 
-    private final SafeZoneService service;
+    private final RentalService rentalService;
+    private final CellService cellService;
+    private final UserService userService;
     private final ConsoleInput input;
 
     public AdminView(
-            SafeZoneService service,
+            RentalService rentalService,
+            CellService cellService,
+            UserService userService,
             Scanner scanner) {
 
-        this.service = service;
+        this.rentalService = rentalService;
+        this.cellService = cellService;
+        this.userService = userService;
         this.input = new ConsoleInput(scanner);
     }
 
@@ -97,10 +104,10 @@ public class AdminView {
         System.out.println("=================================");
         System.out.println();
 
-        for (Cell cell : service.getCells()) {
+        for (Cell cell : cellService.getCells()) {
 
             int rentalCount =
-                    service.getCellRentalCount(
+                    rentalService.getCellRentalCount(
                             cell.getCellId()
                     );
 
@@ -169,7 +176,7 @@ public class AdminView {
     private void showUsers() {
 
         List<User> users =
-                service.getUsers();
+                userService.getUsers();
 
         if (users.isEmpty()) {
             System.out.println("Пользователей нет.");
@@ -200,7 +207,7 @@ public class AdminView {
 
         try {
 
-            service.blockUser(userId);
+            userService.blockUser(userId);
 
             System.out.println(
                     "Пользователь заблокирован."
@@ -225,7 +232,7 @@ public class AdminView {
 
         try {
 
-            service.unblockUser(userId);
+            userService.unblockUser(userId);
 
             System.out.println(
                     "Пользователь разблокирован."
@@ -250,7 +257,7 @@ public class AdminView {
 
         try {
 
-            service.deleteUser(userId);
+            userService.deleteUser(userId);
 
             System.out.println(
                     "Пользователь удалён."
@@ -308,7 +315,7 @@ public class AdminView {
     private void showAllRentals() {
 
         List<Rental> rentals =
-                service.getRentals();
+                rentalService.getRentals();
 
         if (rentals.isEmpty()) {
 
@@ -322,7 +329,7 @@ public class AdminView {
         for (Rental rental : rentals) {
 
             Cell cell =
-                    service.findCellById(
+                    cellService.findCellById(
                             rental.getCellId()
                     );
 
@@ -354,7 +361,7 @@ public class AdminView {
 
         try {
 
-            service.cancelRental(rentalId);
+            rentalService.cancelRental(rentalId);
 
             System.out.println(
                     "Бронь отменена."

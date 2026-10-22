@@ -1,6 +1,6 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.*;
 import com.safezone.domain.enums.Role;
 import com.safezone.domain.model.User;
 
@@ -8,7 +8,10 @@ import java.util.Scanner;
 
 public class ConsoleMenu {
 
-    private final SafeZoneService service;
+    private final CellService cellService;
+    private final UserService userService;
+    private final RentalService rentalService;
+    private final WarehouseService warehouseService;
     private final ConsoleInput input;
 
     private final WarehouseView warehouseView;
@@ -17,27 +20,36 @@ public class ConsoleMenu {
     private final AdminView adminView;
 
     public ConsoleMenu(
-            SafeZoneService service,
+            CellService cellService,
+            UserService userService,
+            RentalService rentalService,
+            WarehouseService warehouseService,
             Scanner scanner) {
 
-        this.service = service;
+        this.cellService = cellService;
+        this.userService = userService;
+        this.rentalService = rentalService;
+        this.warehouseService = warehouseService;
         this.input = new ConsoleInput(scanner);
 
         this.warehouseView =
-                new WarehouseView(service);
+                new WarehouseView(warehouseService);
 
         this.cellView =
-                new CellView(service);
+                new CellView(cellService, warehouseService);
 
         this.rentalView =
                 new RentalView(
-                        service,
+                        cellService,
+                        rentalService,
                         scanner
                 );
 
         this.adminView =
                 new AdminView(
-                        service,
+                        rentalService,
+                        cellService,
+                        userService,
                         scanner
                 );
     }

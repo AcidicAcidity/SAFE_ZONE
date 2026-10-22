@@ -1,18 +1,18 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.AuthService;
 import com.safezone.domain.model.User;
 
 public class RegistrationView {
 
-    private final SafeZoneService service;
+    private final AuthService authService;
     private final ConsoleInput input;
 
     public RegistrationView(
-            SafeZoneService service,
+            AuthService authService,
             ConsoleInput input) {
 
-        this.service = service;
+        this.authService = authService;
         this.input = input;
     }
 
@@ -45,7 +45,7 @@ public class RegistrationView {
         try {
 
             User user =
-                    service.register(
+                    authService.register(
                             login,
                             password
                     );

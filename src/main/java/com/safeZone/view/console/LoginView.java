@@ -1,26 +1,26 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.AuthService;
 import com.safezone.domain.model.User;
 
 import java.util.Scanner;
 
 public class LoginView {
 
-    private final SafeZoneService service;
+    private final AuthService authService;
     private final ConsoleInput input;
     private final RegistrationView registrationView;
 
     public LoginView(
-            SafeZoneService service,
+            AuthService authService,
             Scanner scanner) {
 
-        this.service = service;
+        this.authService = authService;
         this.input = new ConsoleInput(scanner);
 
         this.registrationView =
                 new RegistrationView(
-                        service,
+                        authService,
                         input
                 );
     }
@@ -87,7 +87,7 @@ public class LoginView {
         try {
 
             User user =
-                    service.login(
+                    authService.login(
                             login,
                             password
                     );

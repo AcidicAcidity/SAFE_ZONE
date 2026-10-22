@@ -1,6 +1,7 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.CellService;
+import com.safezone.application.service.WarehouseService;
 import com.safezone.domain.enums.CellStatus;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Warehouse;
@@ -9,12 +10,14 @@ import java.util.List;
 
 public class CellView {
 
-    private final SafeZoneService service;
+    private final CellService cellService;
+    private final WarehouseService warehouseService;
 
     public CellView(
-            SafeZoneService service) {
+            CellService cellService, WarehouseService warehouseService) {
 
-        this.service = service;
+        this.cellService = cellService;
+        this.warehouseService = warehouseService;
     }
 
     public void showAllCells() {
@@ -34,7 +37,7 @@ public class CellView {
         System.out.println();
 
         List<Warehouse> warehouses =
-                service.getWarehouses();
+                warehouseService.getWarehouses();
 
         for (Warehouse warehouse : warehouses) {
 
@@ -230,7 +233,7 @@ public class CellView {
             int row,
             int column) {
 
-        for (Cell cell : service.getCells()) {
+        for (Cell cell : cellService.getCells()) {
 
             if (cell.getWarehouseId()
                     == warehouseId

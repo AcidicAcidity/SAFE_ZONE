@@ -1,7 +1,6 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.PasswordService;
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.*;
 import com.safezone.domain.model.User;
 import com.safezone.infrastructure.data.DBHelper;
 import com.safezone.infrastructure.data.repository.CellRepository;
@@ -18,7 +17,7 @@ import java.util.Scanner;
 
 public class ConsoleApplication {
 
-    private final SafeZoneService service;
+
     private final Scanner scanner;
 
     private final LoginView loginView;
@@ -61,14 +60,20 @@ public class ConsoleApplication {
         PasswordService passwordService =
                 new PasswordService();
 
-        service =
-                new SafeZoneService(
-                        userRepository,
-                        warehouseRepository,
-                        cellRepository,
-                        rentalRepository,
-                        passwordService
-                );
+        AuthService authService =
+                new AuthService(userRepository, passwordService);
+
+        CellService cellService =
+                new CellService(cellRepository, rentalRepository);
+
+        RentalService rentalService =
+                new RentalService(rentalRepository, cellService);
+
+        UserService userService =
+                new UserService(userRepository);
+
+        WarehouseService warehouseService =
+                new WarehouseService(warehouseRepository);
 
 
 
@@ -76,13 +81,16 @@ public class ConsoleApplication {
 
         loginView =
                 new LoginView(
-                        service,
+                        authService,
                         scanner
                 );
 
         consoleMenu =
                 new ConsoleMenu(
-                        service,
+                        cellService,
+                        userService,
+                        rentalService,
+                        warehouseService,
                         scanner
                 );
     }

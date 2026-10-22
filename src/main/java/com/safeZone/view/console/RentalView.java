@@ -1,6 +1,7 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.CellService;
+import com.safezone.application.service.RentalService;
 import com.safezone.domain.enums.CellSize;
 import com.safezone.domain.enums.CellStatus;
 import com.safezone.domain.model.Cell;
@@ -16,14 +17,17 @@ import java.util.Scanner;
 
 public class RentalView {
 
-    private final SafeZoneService service;
+    private final CellService cellService;
+    private final RentalService rentalService;
     private final ConsoleInput input;
 
     public RentalView(
-            SafeZoneService service,
+            CellService cellService,
+            RentalService rentalService,
             Scanner scanner) {
 
-        this.service = service;
+        this.cellService = cellService;
+        this.rentalService = rentalService;
         this.input = new ConsoleInput(scanner);
     }
 
@@ -94,7 +98,7 @@ public class RentalView {
 
         try {
 
-            availableCells = service.getAvailableCells();
+            availableCells = cellService.getAvailableCells();
 
         } catch (IllegalStateException e) {
 
@@ -176,7 +180,7 @@ public class RentalView {
         try {
 
             Rental rental =
-                    service.rentSpecificCell(
+                    rentalService.rentSpecificCell(
                             currentUser.getUserId(),
                             cellId,
                             startDateTime,
@@ -238,7 +242,7 @@ public class RentalView {
         try {
 
             Rental rental =
-                    service.rentCellBySize(
+                    rentalService.rentCellBySize(
                             currentUser.getUserId(),
                             size,
                             startDateTime,
@@ -265,7 +269,7 @@ public class RentalView {
             Rental rental) {
 
         Cell cell =
-                service.findCellById(
+                cellService.findCellById(
                         rental.getCellId()
                 );
 
@@ -338,7 +342,7 @@ public class RentalView {
         System.out.println();
 
         List<Rental> rentals =
-                service.getUserRentals(
+                rentalService.getUserRentals(
                         currentUser.getUserId()
                 );
 
@@ -354,7 +358,7 @@ public class RentalView {
         for (Rental rental : rentals) {
 
             Cell cell =
-                    service.findCellById(
+                    cellService.findCellById(
                             rental.getCellId()
                     );
 

@@ -1,18 +1,18 @@
 package com.safezone.view.console;
 
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.WarehouseService;
 import com.safezone.domain.model.Warehouse;
 
 import java.util.List;
 
 public class WarehouseView {
 
-    private final SafeZoneService service;
+    private final WarehouseService warehouseService;
 
     public WarehouseView(
-            SafeZoneService service) {
+            WarehouseService warehouseService) {
 
-        this.service = service;
+        this.warehouseService = warehouseService;
     }
 
     public void showWarehouses() {
@@ -32,7 +32,7 @@ public class WarehouseView {
         System.out.println();
 
         List<Warehouse> warehouses =
-                service.getWarehouses();
+                warehouseService.getWarehouses();
 
         for (Warehouse warehouse : warehouses) {
 
