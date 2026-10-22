@@ -5,8 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.safezone.infrastructure.data.DBHelper;
 import com.safezone.infrastructure.data.repository.*;
-import com.safezone.application.service.PasswordService;
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.*;
 
 @Configuration
 public class BeanConfig {
@@ -42,8 +41,27 @@ public class BeanConfig {
     }
 
     @Bean
-    public SafeZoneService safeZoneService(UserRepository users, WarehouseRepository warehouses, CellRepository cells,
-            RentalRepository rentals, PasswordService passwordService ) {
-        return new SafeZoneService(users, warehouses, cells, rentals, passwordService);
+    public CellService cellService(CellRepository cellRepository, RentalRepository rentalRepository) {
+        return new CellService(cellRepository, rentalRepository);
+    }
+
+    @Bean
+    public AuthService authService(UserRepository userRepository, PasswordService passwordService) {
+        return new AuthService(userRepository, passwordService);
+    }
+
+    @Bean
+    public RentalService rentalService(RentalRepository rentalRepository, CellService cellService) {
+        return new RentalService(rentalRepository, cellService);
+    }
+
+    @Bean
+    public UserService userService(UserRepository userRepository) {
+        return new UserService(userRepository);
+    }
+
+    @Bean
+    public WarehouseService warehouseService(WarehouseRepository warehouseRepository) {
+        return new WarehouseService(warehouseRepository);
     }
 }
