@@ -291,7 +291,23 @@ public class SafeZoneService {
                result.add(cell);
             }
         }
+
         return result;
+    }
+
+    public List<Cell> getAvailableCells() {
+       try {
+           List<Cell> cells = cellRepository.findAvailable();
+           List<Cell> availableCells = new ArrayList<>();
+           for (Cell cell : cells) {
+               if (!rentalRepository.hasActiveRental(cell.getCellId())) {
+                   availableCells.add(cell);
+               }
+           }
+           return availableCells;
+       } catch (SQLException e) {
+           throw new IllegalStateException("Не удалось получить доступные ячейки", e);
+       }
     }
 
     //Проверяет, свободна ли ячейка в указанный интервал времени.
