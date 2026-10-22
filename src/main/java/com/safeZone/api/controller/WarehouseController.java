@@ -1,7 +1,7 @@
 package com.safezone.api.controller;
 
 import com.safezone.api.dto.WarehouseResponse;
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.WarehouseService;
 import com.safezone.domain.model.Warehouse;
 import com.safezone.api.exception.NotFoundException;
 
@@ -17,22 +17,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/api/v1/warehouses")
 public class WarehouseController {
 
-    private final SafeZoneService service;
+    private final WarehouseService warehouseService;
 
-    public WarehouseController(SafeZoneService service) {
-        this.service = service;
+    public WarehouseController(WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
     }
 
     @GetMapping
     public List<WarehouseResponse> getAll() throws SQLException {
-        return service.getWarehouses().stream()
+        return warehouseService.getWarehouses().stream()
             .map(WarehouseResponse::from)
             .toList();
     }
 
     @GetMapping("/{warehouseId}")
     public WarehouseResponse getById(@PathVariable int warehouseId) throws SQLException {
-        Warehouse w = service.getWarehouseById(warehouseId);
+        Warehouse w = warehouseService.getWarehouseById(warehouseId);
         if (w == null) {
             throw new NotFoundException("Warehouse" + warehouseId + " not found");
         }
