@@ -1,11 +1,13 @@
 package com.safezone.api.controller;
 
-import com.safezone.api.dto.AdminRentalResponse;
-import com.safezone.api.dto.RentalRequest;
-import com.safezone.api.dto.RentalResponse;
-import com.safezone.api.dto.RentalStatusRequest;
-import com.safezone.application.service.SafeZoneService;
+// import com.safezone.api.dto.AdminRentalResponse;
+import com.safezone.api.dto.request.RentalRequest;
+import com.safezone.api.dto.request.RentalStatusRequest;
+import com.safezone.api.dto.response.RentalResponse;
+import com.safezone.application.service.RentalService;
 import com.safezone.domain.model.Rental;
+import com.safezone.api.exception.NotFoundException;
+import com.safezone.api.exception.AccessDeniedException;
 
 import jakarta.validation.Valid;
 
@@ -32,20 +34,15 @@ import java.util.List;
  *   B. Роль на уровне метода: @PreAuthorize("hasRole('CLIENT')").
  *   C. "Свой или админ": это проверка владельца внутри метода (см. getById и cancel).
  *
- * Перед началом напиши DTO:
- *   RentalResponse(id, cellId, startDateTime, endDateTime, status)            для клиента
- *   AdminRentalResponse(id, userId, cellId, startDateTime, endDateTime, status) для админа
- *   RentalStatusRequest(@NotNull RentalStatus status)
- *   RentalRequest(Integer cellId, CellSize size, @NotNull LocalDateTime startDateTime,
- *                 @Min(1) @Max(24) int hours)    (описан в прошлом ответе)
- */
+**/
+
 @RestController
 @RequestMapping("/api/v1/rentals")
 public class RentalController {
 
-    private final SafeZoneService service;
+    private final RentalService service;
 
-    public RentalController(SafeZoneService service) {
+    public RentalController(RentalService service) {
         this.service = service;
     }
 
@@ -78,8 +75,17 @@ public class RentalController {
     @GetMapping("/me")
     @PreAuthorize("hasRole('CLIENT')")
     public List<RentalResponse> mine(@AuthenticationPrincipal Integer userId) {
-        // TODO: service.getUserRentals(userId) -> map(RentalResponse::from) -> toList()
-        throw new UnsupportedOperationException("TODO");
+        if (userId != null) {
+            try {
+                return service.getUserRentals(userId).stream()
+                    .map(RentalResponse::from)
+                    .toList();
+            } catch (IllegalStateException e) {
+                throw new NotFoundException("Не удалось найти ячейки");
+            }
+        } else {
+            throw new IllegalArgumentException("No UserId");
+        }
     }
 
     // ---------------------------------------------------------------------
@@ -91,7 +97,19 @@ public class RentalController {
             @AuthenticationPrincipal Integer userId,
             Authentication auth) {                          // из него узнаём роль
 
+        Rental rental = service.findRentalById(rentalId);
+
+        if (rental == null) {
+            throw new NotFoundException("Аренда не найдена" + rentalId);
+        }
+
+        if (!isAdmin(auth) && rental.getUserId() != userId) {
+            throw new AccessDeniedException("Вы не являетесь админом");
+        }
+
         // TODO:
+        //
+        //
         //   1. Rental rental = service.findRentalById(rentalId); null -> NotFoundException
         //   2. Если НЕ админ И rental.getUserId() != userId -> throw new AccessDeniedException("...")
         //      (org.springframework.security.access.AccessDeniedException, даст 403).
@@ -124,29 +142,34 @@ public class RentalController {
     // ---------------------------------------------------------------------
     // GET /api/v1/rentals (ADMIN)
     // ---------------------------------------------------------------------
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<AdminRentalResponse> getAll() {
-        // TODO: service.getRentals() -> AdminRentalResponse::from.
-        //       Позже: пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
-        throw new UnsupportedOperationException("TODO");
-    }
+    // @GetMapping
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public List<AdminRentalResponse> getAll() {
+    //     // TODO: service.getRentals() -> AdminRentalResponse::from.
+    //     //       Позже: пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
+    //     throw new UnsupportedOperationException("TODO");
+    // }
 
     // ---------------------------------------------------------------------
     // PATCH /api/v1/rentals/{rentalId}/status (ADMIN)   [Endpoint.md: ЧАСТИЧНО]
     // ---------------------------------------------------------------------
-    @PatchMapping("/{rentalId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
-    public AdminRentalResponse changeStatus(
-            @PathVariable int rentalId,
-            @Valid @RequestBody RentalStatusRequest req) {
+    // @PatchMapping("/{rentalId}/status")
+    // @PreAuthorize("hasRole('ADMIN')")
+    // public AdminRentalResponse changeStatus(
+    //         @PathVariable int rentalId,
+    //         @Valid @RequestBody RentalStatusRequest req) {
 
-        // TODO (сначала сервис):
-        //   В SafeZoneService добавь changeRentalStatus(int rentalId, RentalStatus newStatus).
-        //   Реши, какие переходы разрешены. Например: ACTIVE -> CANCELLED / EXPIRED можно,
-        //   а из CANCELLED и EXPIRED выходить нельзя (ConflictException -> 409).
-        //   Репозиторий уже умеет: rentalRepository.updateStatus(id, status).
-        // Затем здесь: вызвать метод сервиса и вернуть AdminRentalResponse.from(...).
-        throw new UnsupportedOperationException("TODO");
+    //     // TODO (сначала сервис):
+    //     //   В SafeZoneService добавь changeRentalStatus(int rentalId, RentalStatus newStatus).
+    //     //   Реши, какие переходы разрешены. Например: ACTIVE -> CANCELLED / EXPIRED можно,
+    //     //   а из CANCELLED и EXPIRED выходить нельзя (ConflictException -> 409).
+    //     //   Репозиторий уже умеет: rentalRepository.updateStatus(id, status).
+    //     // Затем здесь: вызвать метод сервиса и вернуть AdminRentalResponse.from(...).
+    //     throw new UnsupportedOperationException("TODO");
+    // }
+
+    private boolean isAdmin(Authentication auth) {
+        return auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 }

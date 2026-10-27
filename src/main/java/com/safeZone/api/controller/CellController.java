@@ -1,7 +1,7 @@
 package com.safezone.api.controller;
 
-import com.safezone.api.dto.CellResponse;
-import com.safezone.api.dto.CellRequest;
+import com.safezone.api.dto.request.CellRequest;
+import com.safezone.api.dto.response.CellResponse;
 import com.safezone.application.service.CellService;
 import com.safezone.application.service.WarehouseService;
 import com.safezone.domain.model.Cell;
@@ -11,6 +11,7 @@ import com.safezone.api.exception.NotFoundException;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -108,6 +109,10 @@ public class CellController {
             }
         }
     }
+
+    @PatchMapping("/cells/{cellId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Cell updateCell(@PathVariable int cellId) { return null;}
 
     // =====================================================================
     // ЗАДАНИЯ СО ЗВЁЗДОЧКОЙ (Endpoint.md: НЕ РЕАЛИЗОВАНО, все ADMIN).

@@ -1,9 +1,9 @@
 package com.safezone.api.controller;
 
-import com.safezone.api.dto.LoginRequest;
-import com.safezone.api.dto.RegisterRequest;
-import com.safezone.api.dto.TokenResponse;
-import com.safezone.api.dto.UserResponse;
+import com.safezone.api.dto.request.LoginRequest;
+import com.safezone.api.dto.request.RegisterRequest;
+import com.safezone.api.dto.response.TokenResponse;
+import com.safezone.api.dto.response.UserResponse;
 import com.safezone.api.security.JwtService;
 import com.safezone.application.exception.UserNotFoundException;
 import com.safezone.application.service.AuthService;

@@ -1,6 +1,6 @@
 package com.safezone.api.controller;
 
-import com.safezone.api.dto.WarehouseResponse;
+import com.safezone.api.dto.response.WarehouseResponse;
 import com.safezone.application.service.WarehouseService;
 import com.safezone.domain.model.Warehouse;
 import com.safezone.api.exception.NotFoundException;

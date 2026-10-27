@@ -1,8 +1,8 @@
 package com.safezone.api.controller;
 
-import com.safezone.api.dto.UserResponse;
-import com.safezone.api.dto.UserStatusRequest;
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.api.dto.response.UserResponse;
+import com.safezone.api.dto.request.UserStatusRequest;
+import com.safezone.application.service.UserService;
 
 import jakarta.validation.Valid;
 
@@ -34,9 +34,9 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final SafeZoneService service;
+    private final UserService service;
 
-    public UserController(SafeZoneService service) {
+    public UserController(UserService service) {
         this.service = service;
     }
 
