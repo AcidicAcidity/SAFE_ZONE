@@ -24,6 +24,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(409).body(ApiError.of(HttpStatus.CONFLICT, e.getMessage()));
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiError> accessDenied(Exception e) {
+        return ResponseEntity.status(403).body(ApiError.of(HttpStatus.FORBIDDEN, e.getMessage()));
+    }
+
     @ExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class})
     public ResponseEntity<ApiError> badRequest(Exception e) {
         return ResponseEntity.status(400).body(ApiError.of(HttpStatus.BAD_REQUEST, e.getMessage()));
