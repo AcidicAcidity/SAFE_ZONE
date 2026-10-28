@@ -16,6 +16,17 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>6.3.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jcl</artifactId>
+            <version>6.1.14</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.7.7</version>
@@ -65,6 +76,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration><excludes>
+                    <exclude>com/safezone/api/**</exclude>
                     <exclude>com/safezone/view/**</exclude>
                     <exclude>com/safezone/App.java</exclude>
                 </excludes></configuration>

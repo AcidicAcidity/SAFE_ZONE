@@ -4,8 +4,12 @@ import com.safezone.application.exception.AuthenticationException;
 import com.safezone.application.exception.CellUnavailableException;
 import com.safezone.application.exception.UserAlreadyExistsException;
 import com.safezone.application.exception.UserNotFoundException;
+import com.safezone.application.service.AuthService;
+import com.safezone.application.service.CellService;
 import com.safezone.application.service.PasswordService;
-import com.safezone.application.service.SafeZoneService;
+import com.safezone.application.service.RentalService;
+import com.safezone.application.service.UserService;
+import com.safezone.application.service.WarehouseService;
 import com.safezone.client.model.Models;
 import com.safezone.domain.model.Cell;
 import com.safezone.domain.model.Rental;
@@ -24,27 +28,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
-/** Synchronous client boundary backed temporarily by the existing console service. */
+/** Synchronous client boundary backed by the shared application services. */
 public final class SafeZoneClient {
     private static final Set<String> VALIDATION_MESSAGES = Set.of(
             "Логин не может быть пустым.", "Логин должен содержать минимум 3 символа.",
             "Пароль должен содержать минимум 4 символа.", "Ячейка не найдена.",
             "Продолжительность аренды должна быть от 1 до 24 часов.", "Аренда не найдена.",
             "Эту аренду нельзя отменить.");
-    private SafeZoneService service;
+    private Services services;
     private volatile Models.User currentUser;
 
     public Models.User currentUser() { return currentUser; }
 
     public Models.User login(String login, String password) {
-        Models.User user = call(() -> user(service().login(login, password)),
+        Models.User user = call(() -> user(services().auth().login(login, password)),
                 "Не удалось войти. Проверьте соединение и повторите попытку.");
         currentUser = user;
         return user;
     }
 
     public Models.User register(String login, String password) {
-        return call(() -> user(service().register(login, password)),
+        return call(() -> user(services().auth().register(login, password)),
                 "Не удалось зарегистрироваться. Повторите попытку.");
     }
 
@@ -52,79 +56,79 @@ public final class SafeZoneClient {
 
     public List<Models.Warehouse> warehouses() {
         requireUser();
-        return call(() -> service().getWarehouses().stream().map(SafeZoneClient::warehouse).toList(),
+        return call(() -> services().warehouses().getWarehouses().stream().map(SafeZoneClient::warehouse).toList(),
                 "Не удалось получить склады. Повторите попытку.");
     }
 
     public List<Models.Cell> cells() {
         requireUser();
-        return call(() -> service().getCells().stream().map(SafeZoneClient::cell).toList(),
+        return call(() -> services().cells().getCells().stream().map(SafeZoneClient::cell).toList(),
                 "Не удалось получить ячейки. Повторите попытку.");
     }
 
     public List<Models.Cell> availableCells() {
         requireUser();
-        return call(() -> service().getAvailableCells().stream().map(SafeZoneClient::cell).toList(),
+        return call(() -> services().cells().getAvailableCells().stream().map(SafeZoneClient::cell).toList(),
                 "Не удалось получить свободные ячейки. Повторите попытку.");
     }
 
     public List<Models.Rental> myRentals() {
         Models.User user = requireUser();
-        return call(() -> service().getUserRentals(user.id()).stream().map(SafeZoneClient::rental).toList(),
+        return call(() -> services().rentals().getUserRentals(user.id()).stream().map(SafeZoneClient::rental).toList(),
                 "Не удалось получить ваши аренды. Повторите попытку.");
     }
 
     public List<Models.Rental> rentals() {
         requireAdmin();
-        return call(() -> service().getRentals().stream().map(SafeZoneClient::rental).toList(),
+        return call(() -> services().rentals().getRentals().stream().map(SafeZoneClient::rental).toList(),
                 "Не удалось получить бронирования. Повторите попытку.");
     }
 
     public List<Models.User> users() {
         requireAdmin();
-        return call(() -> service().getUsers().stream().map(SafeZoneClient::user).toList(),
+        return call(() -> services().users().getUsers().stream().map(SafeZoneClient::user).toList(),
                 "Не удалось получить пользователей. Повторите попытку.");
     }
 
     public List<Models.CellStatistic> cellStatistics() {
         requireAdmin();
-        return call(() -> service().getCells().stream()
-                        .map(value -> new Models.CellStatistic(cell(value), service().getCellRentalCount(value.getCellId())))
+        return call(() -> services().cells().getCells().stream()
+                        .map(value -> new Models.CellStatistic(cell(value), services().rentals().getCellRentalCount(value.getCellId())))
                         .toList(),
                 "Не удалось получить статистику по ячейкам. Повторите попытку.");
     }
 
     public Models.Rental rentSpecificCell(int cellId, int hours) {
         Models.User user = requireUser();
-        return call(() -> rental(service().rentSpecificCell(user.id(), cellId, LocalDateTime.now(), hours)),
+        return call(() -> rental(services().rentals().rentSpecificCell(user.id(), cellId, LocalDateTime.now(), hours)),
                 "Не удалось оформить аренду. Повторите попытку.");
     }
 
     public Models.Rental rentCellBySize(Models.CellSize size, int hours) {
         Models.User user = requireUser();
-        return call(() -> rental(service().rentCellBySize(user.id(),
+        return call(() -> rental(services().rentals().rentCellBySize(user.id(),
                         com.safezone.domain.enums.CellSize.valueOf(size.name()), LocalDateTime.now(), hours)),
                 "Не удалось оформить аренду. Повторите попытку.");
     }
 
     public void blockUser(int userId) {
         requireAdmin();
-        call(() -> { service().blockUser(userId); return null; }, "Не удалось заблокировать пользователя.");
+        call(() -> { services().users().blockUser(userId); return null; }, "Не удалось заблокировать пользователя.");
     }
 
     public void unblockUser(int userId) {
         requireAdmin();
-        call(() -> { service().unblockUser(userId); return null; }, "Не удалось разблокировать пользователя.");
+        call(() -> { services().users().unblockUser(userId); return null; }, "Не удалось разблокировать пользователя.");
     }
 
     public void deleteUser(int userId) {
         requireAdmin();
-        call(() -> { service().deleteUser(userId); return null; }, "Не удалось удалить аккаунт.");
+        call(() -> { services().users().deleteUser(userId); return null; }, "Не удалось удалить аккаунт.");
     }
 
     public void cancelRental(int rentalId) {
         requireAdmin();
-        call(() -> { service().cancelRental(rentalId); return null; }, "Не удалось отменить бронь.");
+        call(() -> { services().rentals().cancelRental(rentalId); return null; }, "Не удалось отменить бронь.");
     }
 
     public Path exportDatabase(Path destination) {
@@ -149,15 +153,24 @@ public final class SafeZoneClient {
         if (!requireUser().isAdmin()) throw new ClientException("Недостаточно прав для этого действия.");
     }
 
-    private synchronized SafeZoneService service() {
-        if (service == null) {
+    private synchronized Services services() {
+        if (services == null) {
             DBHelper database = new DBHelper();
             new DatabaseInitializer(database).initialize();
-            service = new SafeZoneService(new PostgresUserRepository(database), new PostgresWarehouseRepository(database),
-                    new PostgresCellRepository(database), new PostgresRentalRepository(database), new PasswordService());
+            var userRepository = new PostgresUserRepository(database);
+            var warehouseRepository = new PostgresWarehouseRepository(database);
+            var cellRepository = new PostgresCellRepository(database);
+            var rentalRepository = new PostgresRentalRepository(database);
+            var cellService = new CellService(cellRepository, rentalRepository);
+            services = new Services(new AuthService(userRepository, new PasswordService()), cellService,
+                    new RentalService(rentalRepository, cellService), new UserService(userRepository),
+                    new WarehouseService(warehouseRepository));
         }
-        return service;
+        return services;
     }
+
+    private record Services(AuthService auth, CellService cells, RentalService rentals,
+                            UserService users, WarehouseService warehouses) { }
 
     private static <T> T call(Supplier<T> work, String fallback) {
         try {
