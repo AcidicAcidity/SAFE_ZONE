@@ -1,6 +1,6 @@
 package com.safezone.api.controller;
 
-// import com.safezone.api.dto.AdminRentalResponse;
+import com.safezone.api.dto.admin.AdminRentalResponse;
 import com.safezone.api.dto.request.RentalRequest;
 import com.safezone.api.dto.request.RentalStatusRequest;
 import com.safezone.api.dto.response.RentalResponse;
@@ -8,6 +8,7 @@ import com.safezone.application.service.RentalService;
 import com.safezone.domain.model.Rental;
 import com.safezone.api.exception.NotFoundException;
 import com.safezone.api.exception.AccessDeniedException;
+import com.safezone.api.exception.ConflictException;
 
 import jakarta.validation.Valid;
 
@@ -99,26 +100,18 @@ public class RentalController {
 
         Rental rental = service.findRentalById(rentalId);
 
-        if (rental == null) {
-            throw new NotFoundException("Аренда не найдена" + rentalId);
-        }
-
         if (!isAdmin(auth) && rental.getUserId() != userId) {
             throw new AccessDeniedException("Вы не являетесь админом");
         }
 
-        // TODO:
-        //
-        //
-        //   1. Rental rental = service.findRentalById(rentalId); null -> NotFoundException
-        //   2. Если НЕ админ И rental.getUserId() != userId -> throw new AccessDeniedException("...")
-        //      (org.springframework.security.access.AccessDeniedException, даст 403).
-        //      Альтернатива: отвечать 404, тогда клиент не узнает, что чужая аренда с таким id существует.
-        //   3. return RentalResponse.from(rental)
-        //
-        // Ловушка: int != Integer безопасно (Java распаковывает). Но если getUserId() вернёт Integer
-        // (объект), то != сравнит ссылки, а не значения. Тогда используй Objects.equals(a, b).
-        throw new UnsupportedOperationException("TODO");
+        if (isAdmin(auth) == true) {
+            return RentalResponse.from(rental);
+        } else if (rental.getUserId() == userId) {
+            return RentalResponse.from(rental);
+        } else {
+            throw new NotFoundException("Аренда не найдена" + rentalId);
+        }
+
     }
 
     // ---------------------------------------------------------------------
@@ -130,25 +123,36 @@ public class RentalController {
             @PathVariable int rentalId,
             @AuthenticationPrincipal Integer userId) {
 
-        // TODO:
-        //   1. найти аренду (404, если нет)
-        //   2. проверить владельца (403)         <- без этого любой клиент отменит чужую аренду!
-        //   3. service.cancelRental(rentalId)    (бросит IllegalStateException, если не ACTIVE.
-        //                                         Сделай там ConflictException, чтобы получилось 409)
-        //   4. вернуть обновлённую: RentalResponse.from(service.findRentalById(rentalId))
-        throw new UnsupportedOperationException("TODO");
+        Rental rental = service.findRentalById(rentalId);
+
+        if (rental == null) {
+            throw new NotFoundException("Аренда не найдена:" + rentalId);
+        }
+
+        if (rental.getUserId() != userId) {
+            throw new ConflictException("Это не ваша ячейка" + rentalId);
+        }
+
+        try {
+            service.cancelRental(rentalId);
+        } catch(IllegalArgumentException e) {
+            return null; //TODO на подумать чё возвращать при ошибке
+        }
+
+        return RentalResponse.from(rental);
     }
 
     // ---------------------------------------------------------------------
     // GET /api/v1/rentals (ADMIN)
     // ---------------------------------------------------------------------
-    // @GetMapping
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public List<AdminRentalResponse> getAll() {
-    //     // TODO: service.getRentals() -> AdminRentalResponse::from.
-    //     //       Позже: пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
-    //     throw new UnsupportedOperationException("TODO");
-    // }
+    @GetMapping("/api/v1/rentals")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<AdminRentalResponse> getAll() {
+
+        // TODO: service.getRentals() -> AdminRentalResponse::from.
+        //       Позже: пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
+        throw new UnsupportedOperationException("TODO");
+    }
 
     // ---------------------------------------------------------------------
     // PATCH /api/v1/rentals/{rentalId}/status (ADMIN)   [Endpoint.md: ЧАСТИЧНО]
