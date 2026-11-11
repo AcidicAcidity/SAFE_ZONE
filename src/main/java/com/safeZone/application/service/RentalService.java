@@ -234,4 +234,13 @@ public class RentalService {
             );
         }
     }
+
+    public Rental changeRentalStatus(int rentalId, RentalStatus newStatus) {
+        try {
+            return rentalRepository.changeRentalStatus(rentalId, newStatus);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Не удалось изменить статус аренды",
+                e);
+        }
+    }
 }
