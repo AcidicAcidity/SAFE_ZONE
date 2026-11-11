@@ -2,7 +2,11 @@ package com.safezone.api.controller;
 
 import com.safezone.api.dto.response.UserResponse;
 import com.safezone.api.dto.request.UserStatusRequest;
+import com.safezone.api.exception.NotFoundException;
+import com.safezone.api.exception.DataBaseErrorException;
+import com.safezone.api.exception.ConflictException;
 import com.safezone.application.service.UserService;
+import com.safezone.domain.model.User;
 
 import jakarta.validation.Valid;
 
@@ -43,24 +47,37 @@ public class UserController {
     // GET /api/v1/users/me (любой авторизованный)
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal Integer userId) {
-        // TODO: то же, что AuthController.me (найти пользователя, null -> UserNotFoundException)
-        throw new UnsupportedOperationException("TODO");
+        try {
+            User user = service.findUserById(userId);
+            return UserResponse.from(user);
+        } catch (IllegalStateException e) {
+            throw new NotFoundException("Не удалось найти пользователя");
+        }
     }
 
     // GET /api/v1/users (ADMIN)
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getAll() {
-        // TODO: service.getUsers() -> UserResponse::from. Именно UserResponse, не модель User!
-        throw new UnsupportedOperationException("TODO");
+        try {
+            return service.getUsers().stream()
+                .map(UserResponse::from)
+                .toList();
+        } catch (IllegalStateException e) {
+            throw new DataBaseErrorException("Не удалось получить список пользователей");
+        }
     }
 
     // GET /api/v1/users/7 (ADMIN)
     @GetMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getById(@PathVariable int userId) {
-        // TODO: service.findUserById(userId); null -> 404
-        throw new UnsupportedOperationException("TODO");
+        try {
+            User user = service.findUserById(userId);
+            return UserResponse.from(user);
+        } catch (IllegalStateException e) {
+            throw new NotFoundException("Не удалось найти пользователя с " + userId + "id.");
+        }
     }
 
     // PATCH /api/v1/users/7/status (ADMIN)   тело: {"status": "BLOCKED"}
@@ -71,20 +88,23 @@ public class UserController {
             @Valid @RequestBody UserStatusRequest req,
             @AuthenticationPrincipal Integer currentAdminId) {
 
+            if (userId == currentAdminId) {
+                throw new ConflictException("Вы не можете заблокировать или удалить свой аккаунт");
+            }
+
+            switch (req.status()) {
+                case BLOCKED -> service.blockUser(userId);
+                case ACTIVE -> service.unblockUser(userId);
+                case DELETED -> service.deleteUser(userId);
+                default -> throw new IllegalArgumentException("Недопустимый статус.");
+            }
+
+            User user = service.findUserById(userId);
+            return UserResponse.from(user);
+
         // TODO:
-        //   1. Защита от самоблокировки: если userId == currentAdminId -> IllegalArgumentException
-        //      (или ConflictException). Иначе единственный админ заблокирует сам себя.
-        //   2. В сервисе есть три метода, выбери нужный через switch по req.status():
-        //        switch (req.status()) {
-        //            case BLOCKED -> service.blockUser(userId);
-        //            case ACTIVE  -> service.unblockUser(userId);
-        //            case DELETED -> service.deleteUser(userId);
-        //            default      -> throw new IllegalArgumentException("Недопустимый статус.");
-        //        }
         //   3. Правило переходов: из DELETED в ACTIVE выходить нельзя (удаление логическое, но необратимое).
         //      Проверку лучше положить в сервис, а не в контроллер.
-        //   4. Вернуть UserResponse.from(service.findUserById(userId)).
-        throw new UnsupportedOperationException("TODO");
     }
 
     // =====================================================================
