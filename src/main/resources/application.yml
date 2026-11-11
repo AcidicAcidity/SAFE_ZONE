@@ -1,21 +1,24 @@
+
 server:
   port: 8080
 
-app:
-  db:
+spring:
+  datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/safezone}
-    user: ${DB_USER:safezone}
-    password: ${DB_PASSWORD:safezone}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+app:
   jwt:
-    secret: ${JWT_SECRET}          # минимум 32 символа
+    secret: ${JWT_SECRET}          # не короче 32 символов
     access-ttl-minutes: 30
 
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health            # наружу отдаём только health
   endpoint:
     health:
       probes:
-        enabled: true              # /actuator/health/readiness
+        enabled: true              # включает /actuator/health/readiness
