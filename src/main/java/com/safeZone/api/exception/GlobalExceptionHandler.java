@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.http.ResponseEntity;
 
-import java.sql.SQLException;
+import java.nio.file.AccessDeniedException;
 
 import org.springframework.http.HttpStatus;
 
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiError> accessDenied(Exception e) {
+    public ResponseEntity<ApiError> accessDenied(AccessDeniedException e) {
         return ResponseEntity.status(403).body(ApiError.of(HttpStatus.FORBIDDEN, e.getMessage()));
     }
 
@@ -34,9 +34,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(ApiError.of(HttpStatus.BAD_REQUEST, e.getMessage()));
     }
 
-    @ExceptionHandler(SQLException.class)
-    public ResponseEntity<ApiError> db(SQLException e) {
+    @ExceptionHandler(DataBaseErrorException.class)
+    public ResponseEntity<ApiError> dataBase(DataBaseErrorException e) {
         return ResponseEntity.status(500)
             .body(ApiError.of(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
     }
+
 }
