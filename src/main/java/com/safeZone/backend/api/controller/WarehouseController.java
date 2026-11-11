@@ -1,0 +1,41 @@
+package com.safezone.backend.api.controller;
+
+import com.safezone.backend.api.dto.response.WarehouseResponse;
+import com.safezone.backend.application.service.WarehouseService;
+import com.safezone.backend.domain.model.Warehouse;
+import com.safezone.backend.api.exception.NotFoundException;
+
+import java.sql.SQLException;
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+
+@RestController
+@RequestMapping("/api/v1/warehouses")
+public class WarehouseController {
+
+    private final WarehouseService warehouseService;
+
+    public WarehouseController(WarehouseService warehouseService) {
+        this.warehouseService = warehouseService;
+    }
+
+    @GetMapping
+    public List<WarehouseResponse> getAll() throws SQLException {
+        return warehouseService.getWarehouses().stream()
+            .map(WarehouseResponse::from)
+            .toList();
+    }
+
+    @GetMapping("/{warehouseId}")
+    public WarehouseResponse getById(@PathVariable int warehouseId) throws SQLException {
+        Warehouse w = warehouseService.getWarehouseById(warehouseId);
+        if (w == null) {
+            throw new NotFoundException("Warehouse" + warehouseId + " not found");
+        }
+        return WarehouseResponse.from(w);
+    }
+}
