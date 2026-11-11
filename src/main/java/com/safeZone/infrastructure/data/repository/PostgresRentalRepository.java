@@ -226,6 +226,21 @@ public class PostgresRentalRepository
         );
     }
 
+    @Override
+    public Rental changeRentalStatus(
+        int rentalId, RentalStatus newStatus) throws SQLException{
+            String sql =
+            "UPDATE rentals " +
+                    "SET status = ? " +
+                    "WHERE rental_id = ?";
+            dbHelper.executeUpdateData(sql,
+                newStatus.name(),
+                rentalId
+                );
+            return findById(rentalId);
+        }
+
+
     private Rental mapRental(
             Map<String, Object> row) {
 

@@ -15,6 +15,8 @@ public interface RentalRepository {
 
     List<Rental> findByUserId(int userId) throws SQLException;
 
+    Rental changeRentalStatus(int rentalId, RentalStatus newStatus) throws SQLException;
+
     int create(
             int userId,
             int cellId,
