@@ -1,4 +1,4 @@
-package com.safezone.view.console;
+package com.safezone.view.console.view.console;
 
 import com.safezone.application.service.RentalService;
 import com.safezone.application.service.CellService;

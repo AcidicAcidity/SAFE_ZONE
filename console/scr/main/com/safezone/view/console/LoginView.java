@@ -1,4 +1,4 @@
-package com.safezone.view.console;
+package console.scr.main.com.safezone.view.consolew.console
 
 import com.safezone.application.service.AuthService;
 import com.safezone.domain.model.User;
