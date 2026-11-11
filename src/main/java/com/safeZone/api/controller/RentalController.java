@@ -6,9 +6,11 @@ import com.safezone.api.dto.request.RentalStatusRequest;
 import com.safezone.api.dto.response.RentalResponse;
 import com.safezone.application.service.RentalService;
 import com.safezone.domain.model.Rental;
+import com.safezone.domain.enums.RentalStatus;
 import com.safezone.api.exception.NotFoundException;
 import com.safezone.api.exception.AccessDeniedException;
 import com.safezone.api.exception.ConflictException;
+import com.safezone.api.exception.DataBaseErrorException;
 
 import jakarta.validation.Valid;
 
@@ -27,15 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * ОБРАЗЕЦ №2 + СКЕЛЕТ: аренды (Endpoint.md, раздел 6). Здесь появляются три новые идеи:
- *
- *   A. userId берётся ТОЛЬКО из токена: @AuthenticationPrincipal Integer userId.
- *      Никогда не из тела запроса и не из URL, иначе можно арендовать "за другого".
- *   B. Роль на уровне метода: @PreAuthorize("hasRole('CLIENT')").
- *   C. "Свой или админ": это проверка владельца внутри метода (см. getById и cancel).
- *
-**/
 
 @RestController
 @RequestMapping("/api/v1/rentals")
@@ -48,7 +41,7 @@ public class RentalController {
     }
 
     // ---------------------------------------------------------------------
-    // ОБРАЗЕЦ (готово, разбери построчно): POST /api/v1/rentals
+    //  POST /api/v1/rentals
     // ---------------------------------------------------------------------
     @PostMapping
     @PreAuthorize("hasRole('CLIENT')")
@@ -136,7 +129,7 @@ public class RentalController {
         try {
             service.cancelRental(rentalId);
         } catch(IllegalArgumentException e) {
-            return null; //TODO на подумать чё возвращать при ошибке
+            throw new DataBaseErrorException("Не удалось закрыть аренду ячейки");
         }
 
         return RentalResponse.from(rental);
@@ -149,28 +142,38 @@ public class RentalController {
     @PreAuthorize("hasRole('ADMIN')")
     public List<AdminRentalResponse> getAll() {
 
-        // TODO: service.getRentals() -> AdminRentalResponse::from.
-        //       Позже: пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
-        throw new UnsupportedOperationException("TODO");
+        try {
+            return service.getRentals().stream()
+                .map(AdminRentalResponse::from)
+                .toList();
+        } catch (IllegalStateException e) {
+            throw new DataBaseErrorException("Не удалось получить список аренд");
+        }
+        //TODO: Позже - пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
     }
 
     // ---------------------------------------------------------------------
     // PATCH /api/v1/rentals/{rentalId}/status (ADMIN)   [Endpoint.md: ЧАСТИЧНО]
     // ---------------------------------------------------------------------
-    // @PatchMapping("/{rentalId}/status")
-    // @PreAuthorize("hasRole('ADMIN')")
-    // public AdminRentalResponse changeStatus(
-    //         @PathVariable int rentalId,
-    //         @Valid @RequestBody RentalStatusRequest req) {
+    @PatchMapping("/{rentalId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public AdminRentalResponse changeStatus(
+            @PathVariable int rentalId,
+            @Valid @RequestBody RentalStatusRequest req) {
 
-    //     // TODO (сначала сервис):
-    //     //   В SafeZoneService добавь changeRentalStatus(int rentalId, RentalStatus newStatus).
-    //     //   Реши, какие переходы разрешены. Например: ACTIVE -> CANCELLED / EXPIRED можно,
-    //     //   а из CANCELLED и EXPIRED выходить нельзя (ConflictException -> 409).
-    //     //   Репозиторий уже умеет: rentalRepository.updateStatus(id, status).
-    //     // Затем здесь: вызвать метод сервиса и вернуть AdminRentalResponse.from(...).
-    //     throw new UnsupportedOperationException("TODO");
-    // }
+            RentalStatus status = req.status();
+
+            if (status ==  null) {
+                throw new IllegalStateException("Не обнаружен статус в запросе");
+            }
+
+            try {
+                Rental changedStatus = service.changeRentalStatus(rentalId, status);
+                return AdminRentalResponse.from(changedStatus);
+            } catch (IllegalStateException e) {
+                throw new DataBaseErrorException("Не удалось изменить статус аренды");
+            }
+    }
 
     private boolean isAdmin(Authentication auth) {
         return auth.getAuthorities().stream()
