@@ -1,2 +1,41 @@
 services:
-  
+  db:
+    image: postgres:18.6-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql          # данные переживают перезапуск контейнера
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro     # *.sql отсюда выполняются ОДИН раз, при создании пустого volume
+    ports:
+      - "127.0.0.1:5433:5432"          # 5433, чтобы не конфликтовать с вашей локальной БД на 5432; только с этого компьютера
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy     # API стартует, только когда БД реально готова
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}   # хост "db" = имя сервиса выше, а не localhost!
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness"]
+      interval: 10s
+      timeout: 3s
+      start_period: 40s
+      retries: 5
+
+volumes:
+  pgdata:
