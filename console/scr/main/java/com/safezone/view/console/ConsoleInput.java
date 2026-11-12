@@ -1,4 +1,4 @@
-package console.scr.main.com.safezone.view.console
+package com.safezone.view.console;
 
 import com.safezone.domain.enums.CellSize;
 
