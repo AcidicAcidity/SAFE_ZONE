@@ -21,19 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * СКЕЛЕТ: профиль и управление пользователями (Endpoint.md, разделы 2 и 3).
- *
- * /users/me и /users/{userId} живут в одном контроллере: Spring предпочитает
- * точное совпадение "/me" шаблону "/{userId}", так что конфликта нет.
- *
- * Доступ задан не в SecurityConfig, а над методами: GET /users/me требует просто токен
- * (anyRequest().authenticated()), остальное @PreAuthorize("hasRole('ADMIN')").
- *
- * Напиши DTO:
- *   UserResponse        уже есть (id, login, status, role): хеша пароля в нём нет
- *   UserStatusRequest   record UserStatusRequest(@NotNull UserStatus status) {}
- */
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
@@ -44,7 +31,6 @@ public class UserController {
         this.service = service;
     }
 
-    // GET /api/v1/users/me (любой авторизованный)
     @GetMapping("/me")
     public UserResponse me(@AuthenticationPrincipal Integer userId) {
         try {
@@ -101,20 +87,5 @@ public class UserController {
 
             User user = service.findUserById(userId);
             return UserResponse.from(user);
-
-        // TODO:
-        //   3. Правило переходов: из DELETED в ACTIVE выходить нельзя (удаление логическое, но необратимое).
-        //      Проверку лучше положить в сервис, а не в контроллер.
     }
-
-    // =====================================================================
-    // ЗАДАНИЯ СО ЗВЁЗДОЧКОЙ (Endpoint.md: НЕ РЕАЛИЗОВАНО / ОТЛОЖЕНО)
-    //
-    // PATCH /users/me           сменить профиль. Сначала реши, ЧТО можно менять (логин?).
-    //                           Нужен UserRepository.updateLogin и проверка на дубликат (409).
-    // PATCH /users/{id}/role    ADMIN. Тело {"role":"ADMIN"}. UserRepository.updateRole(int, Role).
-    //                           Помни: роль зашита в уже выданные токены, она сменится только
-    //                           после их истечения (или входа заново).
-    // PATCH /users/me/password  ОТЛОЖЕНО: старый пароль + новый, passwordService.matches/hash.
-    // =====================================================================
 }

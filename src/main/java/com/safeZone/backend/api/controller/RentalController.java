@@ -40,9 +40,6 @@ public class RentalController {
         this.service = service;
     }
 
-    // ---------------------------------------------------------------------
-    //  POST /api/v1/rentals
-    // ---------------------------------------------------------------------
     @PostMapping
     @PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity<RentalResponse> create(
@@ -63,9 +60,6 @@ public class RentalController {
                 .body(RentalResponse.from(rental));
     }
 
-    // ---------------------------------------------------------------------
-    // GET /api/v1/rentals/me (CLIENT)
-    // ---------------------------------------------------------------------
     @GetMapping("/me")
     @PreAuthorize("hasRole('CLIENT')")
     public List<RentalResponse> mine(@AuthenticationPrincipal Integer userId) {
@@ -82,9 +76,6 @@ public class RentalController {
         }
     }
 
-    // ---------------------------------------------------------------------
-    // GET /api/v1/rentals/{rentalId} (CLIENT: только свою, ADMIN: любую)
-    // ---------------------------------------------------------------------
     @GetMapping("/{rentalId}")
     public RentalResponse getById(
             @PathVariable int rentalId,
@@ -107,9 +98,6 @@ public class RentalController {
 
     }
 
-    // ---------------------------------------------------------------------
-    // PATCH /api/v1/rentals/{rentalId}/cancel (CLIENT, только свою)
-    // ---------------------------------------------------------------------
     @PatchMapping("/{rentalId}/cancel")
     @PreAuthorize("hasRole('CLIENT')")
     public RentalResponse cancel(
@@ -135,9 +123,6 @@ public class RentalController {
         return RentalResponse.from(rental);
     }
 
-    // ---------------------------------------------------------------------
-    // GET /api/v1/rentals (ADMIN)
-    // ---------------------------------------------------------------------
     @GetMapping("/api/v1/rentals")
     @PreAuthorize("hasRole('ADMIN')")
     public List<AdminRentalResponse> getAll() {
@@ -152,9 +137,6 @@ public class RentalController {
         //TODO: Позже - пагинация (?page=0&size=20) и фильтры (?status=ACTIVE).
     }
 
-    // ---------------------------------------------------------------------
-    // PATCH /api/v1/rentals/{rentalId}/status (ADMIN)   [Endpoint.md: ЧАСТИЧНО]
-    // ---------------------------------------------------------------------
     @PatchMapping("/{rentalId}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public AdminRentalResponse changeStatus(
