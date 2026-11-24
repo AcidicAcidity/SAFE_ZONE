@@ -1,7 +1,7 @@
 package com.safezone.backend.api.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import com.safezone.backend.domain.enums.RentalStatus;
 
-public record RentalStatusRequest(@NotBlank RentalStatus status) {}
+public record RentalStatusRequest(@NotNull RentalStatus status) {}

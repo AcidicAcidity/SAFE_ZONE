@@ -1,0 +1,15 @@
+# Overlay for the root Compose. Run from the repository root (see README).
+services:
+  web:
+    build:
+      context: ./web-client
+      args:
+        VITE_ENABLE_RENTAL_CREATION: ${VITE_ENABLE_RENTAL_CREATION:-true}
+        VITE_ENABLE_USER_STATUS_UPDATES: ${VITE_ENABLE_USER_STATUS_UPDATES:-true}
+        VITE_ENABLE_RENTAL_STATUS_UPDATES: ${VITE_ENABLE_RENTAL_STATUS_UPDATES:-true}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-3000}:80"
+    depends_on:
+      api:
+        condition: service_healthy

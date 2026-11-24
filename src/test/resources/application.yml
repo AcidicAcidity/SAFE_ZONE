@@ -1,0 +1,4 @@
+app:
+  jwt:
+    secret: safezone-contract-tests-only-32-bytes-minimum-key
+    access-ttl-minutes: 30

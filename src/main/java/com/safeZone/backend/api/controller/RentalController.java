@@ -48,6 +48,10 @@ public class RentalController {
 
         Rental rental;
 
+        if ((req.cellId() == null) == (req.size() == null)) {
+            throw new IllegalArgumentException("Укажите либо cellId, либо size.");
+        }
+
         if (req.cellId() != null) {
             rental = service.rentSpecificCell(userId, req.cellId(), req.startDateTime(), req.hours());
         } else if (req.size() != null) {
@@ -84,8 +88,12 @@ public class RentalController {
 
         Rental rental = service.findRentalById(rentalId);
 
+        if (rental == null) {
+            throw new NotFoundException("Аренда не найдена: " + rentalId);
+        }
+
         if (!isAdmin(auth) && rental.getUserId() != userId) {
-            throw new AccessDeniedException("Вы не являетесь админом");
+            throw new AccessDeniedException("Нет доступа к чужой аренде.");
         }
 
         if (isAdmin(auth) == true) {
@@ -111,7 +119,11 @@ public class RentalController {
         }
 
         if (rental.getUserId() != userId) {
-            throw new ConflictException("Это не ваша ячейка" + rentalId);
+            throw new AccessDeniedException("Нет доступа к чужой аренде.");
+        }
+
+        if (rental.getStatus() != RentalStatus.ACTIVE) {
+            throw new ConflictException("Эту аренду нельзя отменить.");
         }
 
         try {
@@ -120,10 +132,10 @@ public class RentalController {
             throw new DataBaseErrorException("Не удалось закрыть аренду ячейки");
         }
 
-        return RentalResponse.from(rental);
+        return RentalResponse.from(service.findRentalById(rentalId));
     }
 
-    @GetMapping("/api/v1/rentals")
+    @GetMapping({"", "/api/v1/rentals"})
     @PreAuthorize("hasRole('ADMIN')")
     public List<AdminRentalResponse> getAll() {
 
@@ -145,13 +157,13 @@ public class RentalController {
 
             RentalStatus status = req.status();
 
-            if (status ==  null) {
-                throw new IllegalStateException("Не обнаружен статус в запросе");
+            Rental rental = service.findRentalById(rentalId);
+            if (rental == null) {
+                throw new NotFoundException("Аренда не найдена: " + rentalId);
             }
-
             try {
-                Rental changedStatus = service.changeRentalStatus(rentalId, status);
-                return AdminRentalResponse.from(changedStatus);
+                Rental changed = service.changeRentalStatus(rentalId, status);
+                return AdminRentalResponse.from(changed);
             } catch (IllegalStateException e) {
                 throw new DataBaseErrorException("Не удалось изменить статус аренды");
             }

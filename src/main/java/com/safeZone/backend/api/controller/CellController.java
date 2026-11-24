@@ -54,15 +54,16 @@ public class CellController {
 
 
         if (start != null && end != null ) {
-            return cellService.getAvailableCells().stream()
-                .map(CellResponse::from)
-                .toList();
-        } else if (start == null && end == null) {
+            if (!end.isAfter(start)) {
+                throw new IllegalArgumentException("Окончание аренды должно быть позже начала.");
+            }
             return cellService.getAvailableCells(start, end).stream()
                 .map(CellResponse::from)
                 .toList();
-        } else if ( end.isBefore(start)) {
-            throw new IllegalArgumentException();
+        } else if (start == null && end == null) {
+            return cellService.getAvailableCells().stream()
+                .map(CellResponse::from)
+                .toList();
         } else {
             throw new IllegalArgumentException("Укажите start и end вместе.");
         }

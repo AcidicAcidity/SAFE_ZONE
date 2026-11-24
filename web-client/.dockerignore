@@ -1,0 +1,9 @@
+node_modules
+dist
+.env*
+test-results
+playwright-report
+.sites-runtime
+tests
+playwright.config.ts
+README.md

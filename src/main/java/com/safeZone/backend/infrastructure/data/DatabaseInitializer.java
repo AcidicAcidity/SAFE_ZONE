@@ -10,9 +10,21 @@ import java.util.Properties;
 public class DatabaseInitializer {
 
     private final DBHelper dbHelper;
+    private final String adminLogin;
+    private final String adminPassword;
 
     public DatabaseInitializer(DBHelper dbHelper) {
+        this(dbHelper, envRead.readEnv());
+    }
+
+    private DatabaseInitializer(DBHelper dbHelper, Properties configuration) {
+        this(dbHelper, configuration.getProperty("ADMIN_LOGIN"), configuration.getProperty("ADMIN_PASSWORD"));
+    }
+
+    public DatabaseInitializer(DBHelper dbHelper, String adminLogin, String adminPassword) {
         this.dbHelper = dbHelper;
+        this.adminLogin = adminLogin;
+        this.adminPassword = adminPassword;
     }
 
     public void initialize() {
@@ -33,22 +45,13 @@ public class DatabaseInitializer {
     private void initializeAdmin()
             throws SQLException {
 
-        Properties env =
-                envRead.readEnv();
-
-        String adminLogin =
-                env.getProperty("ADMIN_LOGIN");
-
-        String adminPassword =
-                env.getProperty("ADMIN_PASSWORD");
-
         if (adminLogin == null
                 || adminLogin.isBlank()
                 || adminPassword == null
                 || adminPassword.isBlank()) {
 
             throw new IllegalStateException(
-                    "ADMIN_LOGIN или ADMIN_PASSWORD не указаны в .env"
+                    "ADMIN_LOGIN и ADMIN_PASSWORD должны быть заданы в конфигурации"
             );
         }
 

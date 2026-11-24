@@ -2,6 +2,7 @@ package com.safezone.backend.api.config;
 
 import com.safezone.backend.api.security.JwtAuthFilter;
 import com.safezone.backend.api.security.JwtService;
+import com.safezone.backend.application.service.UserService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtService jwtService)
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtService jwtService, UserService userService)
             throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -31,7 +32,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health/**", "/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/warehouses/**", "/api/v1/cells/**").permitAll()
                 .anyRequest().authenticated())
-            .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthFilter(jwtService, userService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

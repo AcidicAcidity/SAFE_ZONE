@@ -28,10 +28,13 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
+      ADMIN_LOGIN: ${ADMIN_LOGIN:?Set ADMIN_LOGIN in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
+      TZ: ${APP_TIMEZONE:-Europe/Moscow}
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health/readiness"]
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/actuator/health/readiness"]
       interval: 10s
       timeout: 3s
       start_period: 40s

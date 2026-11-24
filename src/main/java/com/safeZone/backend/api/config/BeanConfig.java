@@ -2,8 +2,10 @@ package com.safezone.backend.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.safezone.backend.infrastructure.data.DBHelper;
+import com.safezone.backend.infrastructure.data.DatabaseInitializer;
 import com.safezone.backend.infrastructure.data.repository.*;
 import com.safezone.backend.application.service.*;
 
@@ -11,8 +13,18 @@ import com.safezone.backend.application.service.*;
 public class BeanConfig {
 
     @Bean
-    public DBHelper dbHelper() {
-        return new DBHelper();
+    public DBHelper dbHelper(
+            @Value("${spring.datasource.url}") String url,
+            @Value("${spring.datasource.username}") String user,
+            @Value("${spring.datasource.password}") String password) {
+        return new DBHelper(url, user, password);
+    }
+
+    @Bean(initMethod = "initialize")
+    public DatabaseInitializer databaseInitializer(DBHelper database,
+            @Value("${ADMIN_LOGIN}") String login,
+            @Value("${ADMIN_PASSWORD}") String password) {
+        return new DatabaseInitializer(database, login, password);
     }
 
     @Bean

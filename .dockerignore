@@ -1,4 +1,9 @@
 .env
+**/.env
+**/.env.*
+web-client/
+javafx-client/
+console/
 .git/
 .idea/
 .vscode/

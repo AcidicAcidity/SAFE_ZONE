@@ -2,6 +2,9 @@ package com.safezone.backend.api.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import com.safezone.backend.application.service.UserService;
+import com.safezone.backend.domain.enums.UserStatus;
+import com.safezone.backend.domain.model.User;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,9 +22,11 @@ import java.util.List;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserService userService;
 
-    public JwtAuthFilter(JwtService jwtService) {
+    public JwtAuthFilter(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @Override
@@ -38,7 +43,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 int userId = Integer.parseInt(claims.getSubject());
                 String role = claims.get("role", String.class);
 
-                if (role != null) {
+                User user = userService.findUserById(userId);
+                if (user != null && user.getStatus() == UserStatus.ACTIVE && user.getRole().name().equals(role)) {
                     var auth = new UsernamePasswordAuthenticationToken(
                         userId,
                         null,

@@ -14,11 +14,24 @@ import java.util.Properties;
 
 public class DBHelper {
 
-    private final Properties env = envRead.readEnv();
+    private final String url;
+    private final String user;
+    private final String password;
 
-    private final String url = env.getProperty("DB_URL");
-    private final String user = env.getProperty("DB_USER");
-    private final String password = env.getProperty("DB_PASSWORD");
+    public DBHelper() {
+        this(envRead.readEnv());
+    }
+
+    private DBHelper(Properties configuration) {
+        this(configuration.getProperty("DB_URL"), configuration.getProperty("DB_USER"),
+                configuration.getProperty("DB_PASSWORD"));
+    }
+
+    public DBHelper(String url, String user, String password) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+    }
 
     public List<Map<String, Object>> getDataFromDB(
             String sql,
